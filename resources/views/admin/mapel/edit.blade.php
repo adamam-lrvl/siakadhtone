@@ -1,0 +1,114 @@
+{{-- resources/views/admin/mapel/edit.blade.php --}}
+@extends('admin.layouts.admin')
+@section('title', 'Edit Mapel - ' . $mapel->nama_mapel)
+
+@section('content')
+<div class="max-w-2xl mx-auto">
+
+    <!-- CARD UTAMA — SAMA PERSIS DENGAN SEMUA EDIT/CREATE LAIN -->
+    <div class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+
+        <!-- HEADER INDIGO → PURPLE (DNA KITA) -->
+        <div class="bg-gradient-to-r from-indigo-600 to-purple-700 px-6 py-5 text-white">
+            <div class="flex items-center gap-4">
+                <div class="bg-white/20 backdrop-blur-sm rounded-xl p-3">
+                    <i data-lucide="edit-3" class="w-7 h-7"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold">Edit Mata Pelajaran</h2>
+                    <p class="text-indigo-100 text-sm opacity-90">
+                        Perbarui data {{ $mapel->nama_mapel }}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- BODY -->
+        <div class="p-5 md:p-7">
+
+            <!-- ERROR ALERT -->
+            @if($errors->any())
+                <div class="mb-5 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
+                    <ul class="space-y-1">
+                        @foreach($errors->all() as $error)
+                            <li class="flex items-center gap-2">
+                                <i data-lucide="alert-circle" class="w-4 h-4"></i>
+                                {{ $error }}
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            <form action="{{ route('admin.mapel.update', $mapel->id) }}" method="POST">
+                @csrf @method('PUT')
+
+                <div class="space-y-5">
+
+                    <!-- KODE -->
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1.5">
+                            Kode Mapel
+                        </label>
+                        <input type="text" name="kode" value="{{ old('kode', $mapel->kode) }}" required
+                            class="w-full px-4 py-2.5 text-sm border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 @error('kode') border-red-500 @enderror">
+                        @error('kode') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                    </div>
+
+                    <!-- NAMA MAPEL -->
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1.5">
+                            Nama Mapel
+                        </label>
+                        <input type="text" name="nama_mapel" value="{{ old('nama_mapel', $mapel->nama_mapel) }}" required
+                            class="w-full px-4 py-2.5 text-sm border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 @error('nama_mapel') border-red-500 @enderror">
+                        @error('nama_mapel') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                    </div>
+
+                    <!-- KKM -->
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1.5">
+                            KKM
+                        </label>
+                        <input type="number" name="kkm" value="{{ old('kkm', $mapel->kkm ?? 75) }}" min="0" max="100" required
+                            class="w-full px-4 py-2.5 text-sm border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 @error('kkm') border-red-500 @enderror">
+                        @error('kkm') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                    </div>
+
+                    <!-- KATEGORI -->
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1.5">
+                            Kategori
+                        </label>
+                        <select name="kategori"
+                            class="w-full px-4 py-2.5 text-sm border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 @error('kategori') border-red-500 @enderror"
+                            required>
+                            <option value="wajib" {{ old('kategori', $mapel->kategori) == 'wajib' ? 'selected' : '' }}>
+                                Wajib
+                            </option>
+                            <option value="peminatan" {{ old('kategori', $mapel->kategori) == 'peminatan' ? 'selected' : '' }}>
+                                Peminatan
+                            </option>
+                        </select>
+                        @error('kategori') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                    </div>
+
+                </div>
+
+                <!-- TOMBOL — SAMA PERSIS SEMUA FORM -->
+                <div class="mt-8 flex flex-col sm:flex-row-reverse gap-3">
+                    <button type="submit"
+                        class="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition">
+                        <i data-lucide="save" class="w-5 h-5 inline mr-2"></i>
+                        Update Mapel
+                    </button>
+                    <a href="{{ route('admin.mapel.index') }}"
+                        class="px-6 py-3 bg-gray-100 text-gray-700 font-medium rounded-xl hover:bg-gray-200 transition text-center">
+                        Batal
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endsection
