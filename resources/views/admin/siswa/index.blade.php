@@ -68,10 +68,10 @@
                         <a href="{{ route('admin.siswa.edit', $siswa) }}" class="text-indigo-600 hover:text-indigo-800">
                             <i data-lucide="edit" class="w-5 h-5"></i>
                         </a>
-                        <form action="{{ route('admin.siswa.destroy', $siswa) }}" method="POST" class="inline">
+                        <!-- TAMBAH CLASS delete-form BIAR SWEETALERT JALAN -->
+                        <form action="{{ route('admin.siswa.destroy', $siswa) }}" method="POST" class="inline delete-form">
                             @csrf @method('DELETE')
-                            <button type="submit" onclick="return confirm('Yakin hapus {{ addslashes($siswa->nama) }}?')"
-                                    class="text-red-600 hover:text-red-800">
+                            <button type="submit" class="text-red-600 hover:text-red-800">
                                 <i data-lucide="trash-2" class="w-5 h-5"></i>
                             </button>
                         </form>
@@ -149,9 +149,10 @@
                                     <a href="{{ route('admin.siswa.edit', $siswa) }}" class="text-indigo-600 hover:text-indigo-800">
                                         <i data-lucide="edit" class="w-5 h-5"></i>
                                     </a>
-                                    <form action="{{ route('admin.siswa.destroy', $siswa) }}" method="POST" class="inline">
+                                    <!-- TAMBAH CLASS delete-form BIAR SWEETALERT JALAN -->
+                                    <form action="{{ route('admin.siswa.destroy', $siswa) }}" method="POST" class="inline delete-form">
                                         @csrf @method('DELETE')
-                                        <button type="submit" onclick="return confirm('Yakin hapus?')" class="text-red-600 hover:text-red-800">
+                                        <button type="submit" class="text-red-600 hover:text-red-800">
                                             <i data-lucide="trash-2" class="w-5 h-5"></i>
                                         </button>
                                     </form>
@@ -175,4 +176,52 @@
         </div>
     </div>
 </div>
+
+<!-- SCRIPT SWEETALERT LU SUDAH ADA & JALAN KALAU ADA CLASS delete-form -->
+@if(session('success'))
+<script>
+Swal.fire({
+    icon: 'success',
+    title: 'Berhasil!',
+    text: "{{ session('success') }}",
+    timer: 2000,
+    showConfirmButton: false,
+    customClass:{ popup:'rounded-2xl' }
+});
+</script>
+@endif
+
+@if(session('error'))
+<script>
+Swal.fire({
+    icon: 'error',
+    title: 'Gagal!',
+    text: "{{ session('error') }}",
+    customClass:{ popup:'rounded-2xl' }
+});
+</script>
+@endif
+
+<script>
+document.querySelectorAll('.delete-form').forEach(form => {
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        Swal.fire({
+            title: 'Yakin hapus?',
+            text: 'Data tidak bisa dikembalikan!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, hapus',
+            cancelButtonText: 'Batal',
+            customClass:{ popup:'rounded-2xl' }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
+    });
+});
+</script>
+
 @endsection

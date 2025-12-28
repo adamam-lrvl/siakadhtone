@@ -1,3 +1,4 @@
+{{-- resources/views/admin/guru/index.blade.php --}}
 @extends('admin.layouts.admin')
 @section('title', 'Data Guru')
 
@@ -22,6 +23,14 @@
         </div>
     </div>
 
+    <!-- SUCCESS MESSAGE -->
+    @if(session('success'))
+        <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 px-5 py-4 rounded-xl flex items-center shadow-sm">
+            <i data-lucide="check-circle" class="w-6 h-6 mr-3"></i>
+            <span class="font-medium">{{ session('success') }}</span>
+        </div>
+    @endif
+
     <!-- TABLE -->
     <div class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
         <div class="overflow-x-auto">
@@ -31,7 +40,7 @@
                         <th class="px-4 py-4 text-left font-bold">NIP</th>
                         <th class="px-4 py-4 text-left font-bold">Nama Guru</th>
                         <th class="px-4 py-4 text-left font-bold hidden md:table-cell">Email</th>
-                        <th class="px-4 py-4 text-left font-bold hidden lg:table-cell">Mapel</th>
+                        <th class="px-4 py-4 text-left font-bold">Mapel Mengajar</th>
                         <th class="px-4 py-4 text-left font-bold hidden sm:table-cell">Telepon</th>
                         <th class="px-4 py-4 text-center font-bold">Aksi</th>
                     </tr>
@@ -54,13 +63,32 @@
                         </td>
 
                         <td class="px-4 py-5 hidden md:table-cell">
-                            {{ $guru->email }}
+                            {{ $guru->email ?? '-' }}
                         </td>
 
-                        <td class="px-4 py-5 hidden lg:table-cell">
-                            <span class="px-3 py-1.5 rounded-full text-xs font-bold bg-indigo-100 text-indigo-800">
-                                {{ $guru->mapel?->nama_mapel ?? 'Belum ditentukan' }}
-                            </span>
+                        <!-- MAPEL MENGAJAR — BANYAK MAPEL (MANY-TO-MANY) -->
+                        <td class="px-4 py-5">
+                            <div class="flex flex-wrap gap-2">
+                                @if($guru->mapels->count() > 0)
+                                    @foreach($guru->mapels as $mapel)
+                                        <span class="px-3 py-1.5 rounded-full text-xs font-bold bg-indigo-100 text-indigo-800">
+                                            {{ $mapel->nama_mapel }}
+                                        </span>
+                                    @endforeach
+                                @else
+                                    <span class="text-gray-500 text-xs italic">Belum mengajar mapel</span>
+                                @endif
+                            </div>
+                            <!-- Di HP tampilkan mapel kalau hidden -->
+                            <div class="md:hidden mt-3 flex flex-wrap gap-2">
+                                @if($guru->mapels->count() > 0)
+                                    @foreach($guru->mapels as $mapel)
+                                        <span class="px-2 py-1 rounded-full text-xs bg-purple-100 text-purple-800">
+                                            {{ $mapel->kode ?? $mapel->nama_mapel }}
+                                        </span>
+                                    @endforeach
+                                @endif
+                            </div>
                         </td>
 
                         <td class="px-4 py-5 hidden sm:table-cell">
@@ -74,11 +102,10 @@
                                     <i data-lucide="edit" class="w-5 h-5"></i>
                                 </a>
 
-                                <form action="{{ route('admin.guru.destroy', $guru) }}" method="POST">
-                                    @csrf
-                                    @method('DELETE')
+                                <form action="{{ route('admin.guru.destroy', $guru) }}" method="POST" class="inline delete-form">
+                                    @csrf @method('DELETE')
                                     <button type="submit"
-                                        class="btn-delete p-2 rounded-full hover:bg-red-100 text-red-600 transition">
+                                        class="p-2 rounded-full hover:bg-red-100 text-red-600 transition">
                                         <i data-lucide="trash-2" class="w-5 h-5"></i>
                                     </button>
                                 </form>
@@ -88,7 +115,8 @@
                     @empty
                     <tr>
                         <td colspan="6" class="text-center py-16 text-gray-500">
-                            Belum ada data guru
+                            <i data-lucide="users" class="w-20 h-20 mx-auto text-gray-300 mb-4"></i>
+                            <p class="text-lg font-medium">Belum ada data guru</p>
                         </td>
                     </tr>
                     @endforelse
@@ -96,9 +124,39 @@
             </table>
         </div>
 
+        <!-- PAGINATION -->
         <div class="bg-gradient-to-r from-indigo-50 to-purple-50 border-t px-6 py-4">
             {{ $gurus->links() }}
         </div>
     </div>
 </div>
+
+<!-- SWEETALERT DELETE CONFIRMATION -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    lucide.createIcons();
+
+    document.querySelectorAll('.delete-form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            Swal.fire({
+                title: 'Yakin hapus guru ini?',
+                text: "Data guru tidak bisa dikembalikan!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Ya, hapus!',
+                cancelButtonText: 'Batal',
+                customClass: { popup: 'rounded-2xl' }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        });
+    });
+});
+</script>
 @endsection

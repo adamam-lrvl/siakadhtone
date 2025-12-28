@@ -13,7 +13,8 @@ class GuruController extends Controller
 {
     public function index()
     {
-        $gurus = Guru::with('user', 'mapel')->paginate(15);
+        // EAGER LOAD MAPELS (MANY-TO-MANY)
+        $gurus = Guru::with(['user', 'mapels'])->paginate(15);
         return view('admin.guru.index', compact('gurus'));
     }
 
@@ -32,9 +33,11 @@ class GuruController extends Controller
             'password' => 'required|min:6|confirmed',
             'telepon' => 'nullable|string|max:15',
             'alamat' => 'nullable|string',
-            'mapel_id' => 'nullable|exists:mapels,id',
+            'mapel_id' => 'required|array', // BANYAK MAPEL
+            'mapel_id.*' => 'exists:mapels,id',
         ]);
 
+        // BUAT USER GURU
         $user = User::create([
             'name' => $request->nama,
             'email' => $request->email,
@@ -42,15 +45,18 @@ class GuruController extends Controller
             'role' => 'guru',
         ]);
 
-        Guru::create([
+        // BUAT DATA GURU
+        $guru = Guru::create([
             'user_id' => $user->id,
             'nip' => $request->nip,
             'nama' => $request->nama,
             'email' => $request->email,
             'telepon' => $request->telepon,
             'alamat' => $request->alamat,
-            'mapel_id' => $request->mapel_id,
         ]);
+
+        // ATTACH BANYAK MAPEL KE GURU (MANY-TO-MANY)
+        $guru->mapels()->attach($request->mapel_id);
 
         return redirect()->route('admin.guru.index')->with('success', 'Guru berhasil ditambahkan!');
     }
@@ -58,6 +64,8 @@ class GuruController extends Controller
     public function edit(Guru $guru)
     {
         $mapels = Mapel::all();
+        // LOAD MAPEL YANG SUDAH DIAJAR
+        $guru->load('mapels');
         return view('admin.guru.edit', compact('guru', 'mapels'));
     }
 
@@ -69,29 +77,39 @@ class GuruController extends Controller
             'email' => 'required|email|unique:users,email,' . $guru->user_id,
             'telepon' => 'nullable|string|max:15',
             'alamat' => 'nullable|string',
-            'mapel_id' => 'nullable|exists:mapels,id',
+            'mapel_id' => 'required|array',
+            'mapel_id.*' => 'exists:mapels,id',
         ]);
 
+        // UPDATE USER
         $guru->user->update([
             'name' => $request->nama,
             'email' => $request->email,
         ]);
 
+        // UPDATE GURU
         $guru->update([
             'nip' => $request->nip,
             'nama' => $request->nama,
             'telepon' => $request->telepon,
             'alamat' => $request->alamat,
-            'mapel_id' => $request->mapel_id,
         ]);
+
+        // SYNC MAPEL (UPDATE BANYAK MAPEL)
+        $guru->mapels()->sync($request->mapel_id);
 
         return redirect()->route('admin.guru.index')->with('success', 'Guru berhasil diperbarui!');
     }
 
     public function destroy(Guru $guru)
     {
+        // HAPUS RELASI MAPEL DULU (BIAR GAK ERROR)
+        $guru->mapels()->detach();
+
+        // HAPUS USER & GURU
         $guru->user->delete();
         $guru->delete();
+
         return back()->with('success', 'Guru berhasil dihapus!');
     }
 }

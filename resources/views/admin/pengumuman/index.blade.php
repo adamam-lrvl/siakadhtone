@@ -91,9 +91,9 @@
                                 <a href="{{ route('admin.pengumuman.edit', $p) }}" class="p-3 bg-amber-100 hover:bg-amber-200 text-amber-700 rounded-xl transition">
                                     <i data-lucide="edit-3" class="w-5 h-5"></i>
                                 </a>
-                                <form action="{{ route('admin.pengumuman.destroy', $p) }}" method="POST" class="inline">
+                                <form action="{{ route('admin.pengumuman.destroy', $p) }}" method="POST" class="inline delete-form">
                                     @csrf @method('DELETE')
-                                    <button onclick="return confirm('Yakin hapus pengumuman ini?')" class="p-3 bg-red-100 hover:bg-red-200 text-red-700 rounded-xl transition">
+                                    <button type="submit" class="text-red-600 hover:text-red-800">
                                         <i data-lucide="trash-2" class="w-5 h-5"></i>
                                     </button>
                                 </form>
@@ -175,4 +175,50 @@
     });
 </script>
 @endpush
+
+@if(session('success'))
+<script>
+Swal.fire({
+    icon: 'success',
+    title: 'Berhasil!',
+    text: "{{ session('success') }}",
+    timer: 2000,
+    showConfirmButton: false,
+    customClass:{ popup:'rounded-2xl' }
+});
+</script>
+@endif
+
+@if(session('error'))
+<script>
+Swal.fire({
+    icon: 'error',
+    title: 'Gagal!',
+    text: "{{ session('error') }}",
+    customClass:{ popup:'rounded-2xl' }
+});
+</script>
+@endif
+
+<script>
+document.querySelectorAll('.delete-form').forEach(form => {
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        Swal.fire({
+            title: 'Yakin hapus?',
+            text: 'Data tidak bisa dikembalikan!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, hapus',
+            cancelButtonText: 'Batal',
+            customClass:{ popup:'rounded-2xl' }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
+    });
+});
+</script>
 @endsection

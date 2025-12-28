@@ -4,15 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Activitylog\Traits\LogsActivity; 
-use Spatie\Activitylog\LogOptions;        
-use Illuminate\Database\Eloquent\SoftDeletes; 
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Guru extends Model
 {
     use HasFactory;
-    use LogsActivity;     
-    use SoftDeletes;      
+    use LogsActivity;
+    use SoftDeletes;
 
     protected $table = 'gurus';
 
@@ -23,14 +23,13 @@ class Guru extends Model
         'email',
         'telepon',
         'alamat',
-        'mapel_id',
     ];
 
-    // LOG AKTIVITAS (biar muncul di dashboard admin)
+    // LOG AKTIVITAS
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['nama', 'nip', 'email', 'mapel_id'])
+            ->logOnly(['nama', 'nip', 'email'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->setDescriptionForEvent(fn(string $eventName) => "Guru {$this->nama} " . 
@@ -38,18 +37,20 @@ class Guru extends Model
                  ($eventName === 'updated' ? 'diperbarui' : 'dihapus')));
     }
 
-    // RELASI
-    public function mapel()
-    {
-        return $this->belongsTo(Mapel::class);
-    }
-
+    // RELASI USER
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    // Relasi jadwal (biar guru bisa liat jadwal mengajar)
+    // RELASI MAPEL — 1 GURU BISA NGAJAR BANYAK MAPEL (MANY-TO-MANY)
+    public function mapels()
+    {
+        return $this->belongsToMany(Mapel::class, 'guru_mapel', 'guru_id', 'mapel_id')
+                    ->withTimestamps();
+    }
+
+    // RELASI JADWAL MENGAJAR
     public function jadwalMengajar()
     {
         return $this->hasMany(Jadwal::class, 'guru_id');
