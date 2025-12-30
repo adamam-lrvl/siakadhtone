@@ -11,9 +11,25 @@ use Illuminate\Support\Facades\Hash;
 
 class SiswaController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $siswas = Siswa::with('user', 'kelas')->paginate(15);
+$search = $request->get('search');
+
+        $siswas = Siswa::with(['user', 'kelas'])
+            ->when($search, function ($query, $search) {
+                $query->where('nis', 'like', "%{$search}%")
+                    ->orWhere('nama', 'like', "%{$search}%")
+                    ->orWhereHas('user', function ($q) use ($search) {
+                        $q->where('email', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('kelas', function ($q) use ($search) {
+                        $q->where('nama_kelas', 'like', "%{$search}%");
+                    });
+            })
+            ->orderBy('nama')
+            ->paginate(15)
+            ->appends(['search' => $search]); // biar search tetap ada saat pagination
+
         return view('admin.siswa.index', compact('siswas'));
     }
 
