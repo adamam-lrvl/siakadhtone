@@ -3,131 +3,156 @@
 @section('title', 'Dashboard Siswa')
 
 @section('content')
-<div class="max-w-7xl mx-auto space-y-8">
+<div class="max-w-5xl mx-auto px-4 py-6 space-y-6">
 
-    <!-- HERO SELAMAT DATANG + LIVE CLOCK (PERSIS ADMIN) -->
-    <div class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl p-8 text-white shadow-2xl">
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between">
-            <div>
-                <h1 class="text-3xl md:text-4xl font-bold mb-2">
-                    Selamat Datang, {{ Auth::user()->siswa->nama }}!
-                </h1>
-                <p class="text-blue-100 text-lg">
+    {{-- HERO --}}
+    <div class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl p-6 text-white">
+        <div class="flex items-start justify-between gap-4">
+            <div class="min-w-0">
+                <h1 class="text-2xl font-bold">Selamat datang, {{ Auth::user()->siswa->nama }}!</h1>
+                <p class="text-blue-100 text-sm mt-1">
                     {{ \Carbon\Carbon::now()->translatedFormat('l, d F Y') }}
                 </p>
             </div>
-            <div class="mt-6 md:mt-0">
-                <div class="bg-white/20 backdrop-blur-sm rounded-xl px-8 py-5 text-center">
-                    <p class="text-sm opacity-90">Waktu Sekarang</p>
-                    <p class="text-4xl font-bold" id="liveClock">
-                        {{ \Carbon\Carbon::now()->format('H:i:s') }}
-                    </p>
-                </div>
+            <div class="bg-white/15 rounded-xl px-4 py-2 text-center flex-shrink-0">
+                <p class="text-xs text-blue-100">Waktu</p>
+                <p class="text-xl font-bold tabular-nums" id="liveClock">
+                    {{ \Carbon\Carbon::now()->format('H:i') }}
+                </p>
             </div>
         </div>
     </div>
 
-    <!-- STAT CARDS SISWA -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+    {{-- STAT CARDS --}}
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
         @php
             $stats = [
-                ['label' => 'Jadwal Hari Ini', 'value' => $jadwalsHariIni->count(), 'icon' => 'calendar-clock', 'color' => 'blue'],
-                ['label' => 'Absensi Hadir',   'value' => $absensi['hadir'] ?? 0, 'icon' => 'check-circle-2', 'color' => 'green'],
-                ['label' => 'Total Nilai',     'value' => $nilaiTerakhir->count(), 'icon' => 'trending-up', 'color' => 'indigo'],
-                ['label' => 'Pengumuman',      'value' => $pengumuman->count(), 'icon' => 'megaphone', 'color' => 'purple'],
+                ['label' => 'Jadwal hari ini', 'value' => $jadwalsHariIni->count(),  'icon' => 'calendar-clock', 'bg' => 'bg-blue-50',   'text' => 'text-blue-600'],
+                ['label' => 'Absensi hadir',   'value' => $absensi['H'] ?? 0,        'icon' => 'check-circle-2', 'bg' => 'bg-emerald-50','text' => 'text-emerald-600'],
+                ['label' => 'Total nilai',     'value' => $nilaiTerakhir->count(),   'icon' => 'trending-up',    'bg' => 'bg-indigo-50', 'text' => 'text-indigo-600'],
+                ['label' => 'Pengumuman',      'value' => $pengumuman->count(),      'icon' => 'megaphone',      'bg' => 'bg-purple-50', 'text' => 'text-purple-600'],
             ];
         @endphp
-
-        @foreach($stats as $stat)
-            <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 hover:shadow-2xl transition transform hover:-translate-y-2">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-500 text-sm font-medium">{{ $stat['label'] }}</p>
-                        <p class="text-4xl font-bold text-gray-900 mt-2">{{ $stat['value'] }}</p>
-                    </div>
-                    <div class="bg-{{ $stat['color'] }}-100 rounded-xl p-4">
-                        <i data-lucide="{{ $stat['icon'] }}" class="w-10 h-10 text-{{ $stat['color'] }}-600"></i>
-                    </div>
+        @foreach($stats as $s)
+        <div class="bg-white rounded-2xl border border-gray-200 p-4 hover:border-indigo-300 transition-all">
+            <div class="mb-3">
+                <div class="{{ $s['bg'] }} rounded-xl p-2.5 inline-flex">
+                    <i data-lucide="{{ $s['icon'] }}" class="w-5 h-5 {{ $s['text'] }}"></i>
                 </div>
             </div>
+            <p class="text-2xl font-bold text-gray-900">{{ $s['value'] }}</p>
+            <p class="text-xs text-gray-500 mt-0.5">{{ $s['label'] }}</p>
+        </div>
         @endforeach
     </div>
 
-    <!-- PROFIL SISWA + JADWAL HARI INI -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    {{-- PROFIL + JADWAL --}}
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
 
-        <!-- PROFIL SISWA -->
-        <div class="lg:col-span-1">
-            <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
-                <div class="flex items-center mb-5">
-                    <div class="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl p-3 mr-4">
-                        <i data-lucide="user" class="w-8 h-8 text-white"></i>
+        {{-- PROFIL SISWA --}}
+        <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+            <div class="bg-gradient-to-r from-blue-600 to-indigo-700 px-5 py-4 text-white">
+                <div class="flex items-center gap-3">
+                    <div class="bg-white/15 rounded-xl p-2.5">
+                        <i data-lucide="user" class="w-5 h-5"></i>
                     </div>
-                    <h3 class="text-xl font-bold text-gray-800">Profil Siswa</h3>
+                    <p class="font-semibold">Profil siswa</p>
                 </div>
-                <div class="space-y-4 text-sm">
-                    <div class="flex justify-between py-3 border-b">
-                        <span class="text-gray-600">Nama</span>
-                        <span class="font-semibold">{{ Auth::user()->siswa->nama }}</span>
-                    </div>
-                    <div class="flex justify-between py-3 border-b">
-                        <span class="text-gray-600">NIS</span>
-                        <span class="font-semibold">{{ Auth::user()->siswa->nis ?? '-' }}</span>
-                    </div>
-                    <div class="flex justify-between py-3 border-b">
-                        <span class="text-gray-600">Kelas</span>
-                        <span class="font-semibold">{{ Auth::user()->siswa->kelas->nama_kelas ?? '-' }}</span>
-                    </div>
-                    <div class="flex justify-between py-3">
-                        <span class="text-gray-600">Status</span>
-                        <span class="px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full font-bold text-xs">Aktif</span>
-                    </div>
+            </div>
+            <div class="divide-y divide-gray-100">
+                <div class="flex justify-between items-center px-5 py-3.5">
+                    <span class="text-xs text-gray-400">Nama</span>
+                    <span class="text-sm font-semibold text-gray-900 text-right max-w-[60%] truncate">
+                        {{ Auth::user()->siswa->nama }}
+                    </span>
+                </div>
+                <div class="flex justify-between items-center px-5 py-3.5">
+                    <span class="text-xs text-gray-400">NIS</span>
+                    <span class="text-sm font-semibold text-gray-900">
+                        {{ Auth::user()->siswa->nis ?? '-' }}
+                    </span>
+                </div>
+                <div class="flex justify-between items-center px-5 py-3.5">
+                    <span class="text-xs text-gray-400">Kelas</span>
+                    <span class="text-sm font-semibold text-gray-900">
+                        {{ Auth::user()->siswa->kelas->nama_kelas ?? '-' }}
+                    </span>
+                </div>
+                <div class="flex justify-between items-center px-5 py-3.5">
+                    <span class="text-xs text-gray-400">Status</span>
+                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs
+                                 font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        <i data-lucide="circle-dot" class="w-3 h-3"></i>
+                        Aktif
+                    </span>
                 </div>
             </div>
         </div>
 
-        <!-- JADWAL HARI INI -->
-        <div class="lg:col-span-2">
-            <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
-                <div class="flex items-center justify-between mb-5">
-                    <div class="flex items-center">
-                        <div class="bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl p-3 mr-4">
-                            <i data-lucide="calendar-clock" class="w-8 h-8 text-white"></i>
+        {{-- JADWAL HARI INI --}}
+        <div class="lg:col-span-2 bg-white rounded-2xl border border-gray-200 overflow-hidden">
+            <div class="bg-gradient-to-r from-blue-600 to-indigo-700 px-5 py-4 text-white">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-white/15 rounded-xl p-2.5">
+                            <i data-lucide="calendar-clock" class="w-5 h-5"></i>
                         </div>
-                        <h3 class="text-xl font-bold text-gray-800">Jadwal Hari Ini</h3>
+                        <p class="font-semibold">Jadwal hari ini</p>
                     </div>
-                    <span class="text-sm text-gray-500">{{ \Carbon\Carbon::now()->translatedFormat('l') }}</span>
-                </div>
-
-                <div class="space-y-4">
-                    @if($jadwalsHariIni->count() > 0)
-                        @foreach($jadwalsHariIni as $j)
-                            <div class="flex items-center p-5 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl hover:shadow-md transition">
-                                <div class="bg-indigo-100 rounded-xl p-3 mr-4">
-                                    <i data-lucide="clock" class="w-7 h-7 text-indigo-600"></i>
-                                </div>
-                                <div class="flex-1">
-                                    <p class="font-bold text-indigo-900">{{ $j->jam_mulai }} - {{ $j->jam_selesai }}</p>
-                                    <p class="font-semibold text-purple-700">{{ $j->mapel->nama_mapel }}</p>
-                                    <p class="text-sm text-gray-600 mt-1">Guru: {{ $j->guru->nama }}</p>
-                                </div>
-                            </div>
-                        @endforeach
-                    @else
-                        <p class="text-center text-gray-500 py-8 font-medium">Tidak ada jadwal hari ini 😎</p>
-                    @endif
+                    <span class="text-xs text-blue-100">
+                        {{ \Carbon\Carbon::now()->translatedFormat('l') }}
+                    </span>
                 </div>
             </div>
+
+            @if($jadwalsHariIni->count() > 0)
+                <div class="divide-y divide-gray-100">
+                    @foreach($jadwalsHariIni as $j)
+                    <div class="flex items-center gap-4 px-5 py-4 hover:bg-indigo-50/30 transition">
+                        <div class="bg-indigo-50 rounded-xl p-2.5 flex-shrink-0">
+                            <i data-lucide="book-open" class="w-4 h-4 text-indigo-600"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="font-semibold text-gray-900 truncate">{{ $j->mapel->nama_mapel }}</p>
+                            <p class="text-xs text-gray-400 mt-0.5">{{ $j->guru->nama }}</p>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <span class="inline-flex items-center gap-1 text-xs font-semibold
+                                         text-indigo-700 bg-indigo-50 border border-indigo-200
+                                         px-2.5 py-1 rounded-full">
+                                <i data-lucide="clock" class="w-3 h-3"></i>
+                                {{ \Carbon\Carbon::parse($j->jam_mulai)->format('H:i') }} –
+                                {{ \Carbon\Carbon::parse($j->jam_selesai)->format('H:i') }}
+                            </span>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+            @else
+                <div class="text-center py-16">
+                    <div class="bg-gray-50 rounded-full w-14 h-14 flex items-center
+                                justify-center mx-auto mb-3">
+                        <i data-lucide="calendar-x2" class="w-7 h-7 text-gray-300"></i>
+                    </div>
+                    <p class="font-semibold text-gray-700">Tidak ada jadwal hari ini</p>
+                    <p class="text-xs text-gray-400 mt-1">Nikmati waktu istirahatmu!</p>
+                </div>
+            @endif
         </div>
+
     </div>
 </div>
 
-<!-- LIVE CLOCK SCRIPT (PERSIS ADMIN) -->
 <script>
     function updateClock() {
         const now = new Date();
-        document.getElementById('liveClock').textContent = 
-            now.toLocaleTimeString('id-ID', { timeZone: 'Asia/Jakarta', hour12: false });
+        document.getElementById('liveClock').textContent =
+            now.toLocaleTimeString('id-ID', {
+                timeZone: 'Asia/Jakarta',
+                hour12: false,
+                hour: '2-digit',
+                minute: '2-digit'
+            });
     }
     setInterval(updateClock, 1000);
     updateClock();

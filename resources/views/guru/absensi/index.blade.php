@@ -3,109 +3,140 @@
 @section('title', 'Absensi Hari Ini')
 
 @section('content')
-<div class="max-w-7xl mx-auto">
+<div class="max-w-4xl mx-auto px-4 py-6 space-y-6">
 
-    <!-- HEADER CARD -->
-    <div class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl p-8 text-white shadow-xl mb-8">
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+    {{-- HEADER --}}
+    <div class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl p-5 sm:p-6 text-white">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+
             <div>
-                <h1 class="text-3xl md:text-4xl font-bold mb-2 flex items-center">
-                    <i data-lucide="calendar-check" class="w-10 h-10 mr-3"></i>
-                    Absensi Hari Ini
+                <h1 class="text-xl sm:text-2xl font-bold flex items-center gap-2">
+                    <i data-lucide="calendar-check" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+                    Absensi hari ini
                 </h1>
-                <p class="text-blue-100 text-lg">
+                <p class="text-blue-100 text-sm mt-1">
                     {{ \Carbon\Carbon::today()->translatedFormat('l, d F Y') }}
                 </p>
             </div>
-            <div class="mt-6 md:mt-0 text-right">
-                <div class="text-5xl font-bold">{{ $jadwals->count() }}</div>
-                <div class="text-blue-200">Jadwal Mengajar</div>
+
+            {{-- STATS --}}
+            <div class="flex gap-2">
+                <div class="bg-white/15 rounded-xl px-3 py-2 text-center flex-1">
+                    <p class="text-lg sm:text-xl font-bold">{{ $jadwals->count() }}</p>
+                    <p class="text-[10px] sm:text-xs text-blue-100">Jadwal</p>
+                </div>
+                <div class="bg-white/15 rounded-xl px-3 py-2 text-center flex-1">
+                    <p class="text-lg sm:text-xl font-bold">
+                        {{ $jadwals->filter(fn($j) => $j->absensi->count() > 0)->count() }}
+                    </p>
+                    <p class="text-[10px] sm:text-xs text-blue-100">Diabsen</p>
+                </div>
             </div>
+
         </div>
     </div>
 
-    <!-- DAFTAR JADWAL -->
-    <div class="grid gap-6">
+    {{-- LIST --}}
+    <div class="space-y-3">
         @forelse($jadwals as $j)
-        <div class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-2xl transition-all duration-300">
-            <div class="p-6">
-                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
 
-                    <!-- INFO KIRI -->
-                    <div class="flex-1">
-                        <div class="flex items-start gap-4">
-                            <div class="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl p-4 text-white">
-                                <i data-lucide="book-open" class="w-8 h-8"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-2xl font-bold text-gray-900">
-                                    {{ $j->mapel->nama_mapel }}
-                                    @if($j->mapel->kode)
-                                        <span class="text-sm font-normal text-gray-500 ml-2">({{ $j->mapel->kode }})</span>
-                                    @endif
-                                </h3>
-                                <div class="mt-2 space-y-1 text-gray-600">
-                                    <p class="flex items-center text-lg">
-                                        <i data-lucide="users" class="w-5 h-5 mr-2 text-indigo-600"></i>
-                                        <strong>{{ $j->kelas->nama_kelas }}</strong>
-                                    </p>
-                                    <p class="flex items-center text-lg">
-                                        <i data-lucide="clock" class="w-5 h-5 mr-2 text-purple-600"></i>
-                                        {{ \Carbon\Carbon::parse($j->jam_mulai)->format('H:i') }} - 
-                                        {{ \Carbon\Carbon::parse($j->jam_selesai)->format('H:i') }}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
+        <div class="bg-white rounded-2xl border border-gray-200 p-4 hover:border-indigo-300 hover:shadow-md transition">
+
+            {{-- TOP --}}
+            <div class="flex flex-col sm:flex-row sm:items-start gap-3">
+
+                {{-- LEFT --}}
+                <div class="flex items-start gap-3 flex-1">
+                    <div class="bg-indigo-50 rounded-xl p-2">
+                        <i data-lucide="book-open" class="w-5 h-5 text-indigo-600"></i>
                     </div>
 
-                    <!-- STATUS + AKSI -->
-                    <div class="flex flex-col items-end gap-4">
-                        <!-- STATUS BADGE -->
-                        @if($j->absensi->count() > 0)
-                            <div class="inline-flex items-center px-4 py-2 rounded-full text-sm font-bold bg-emerald-100 text-emerald-800 border-2 border-emerald-300">
-                                <i data-lucide="check-circle" class="w-5 h-5 mr-2"></i>
-                                SUDAH DIABSEN
-                            </div>
-                        @else
-                            <div class="inline-flex items-center px-4 py-2 rounded-full text-sm font-bold bg-orange-100 text-orange-800 border-2 border-orange-300">
-                                <i data-lucide="clock" class="w-5 h-5 mr-2"></i>
-                                BELUM DIABSEN
-                            </div>
-                        @endif
-
-                        <!-- TOMBOL AKSI -->
-                        <div class="flex gap-3">
-                            @if($j->absensi->count() == 0)
-                                <a href="{{ route('guru.absensi.create', $j) }}" 
-                                   class="px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-xl shadow-lg hover:shadow-2xl transition transform hover:-translate-y-1 flex items-center text-lg">
-                                    <i data-lucide="user-check" class="w-6 h-6 mr-3"></i>
-                                    ABSEN SEKARANG
-                                </a>
-                            @else
-                                <a href="{{ route('guru.absensi.show', $j) }}" 
-                                   class="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition flex items-center">
-                                    <i data-lucide="eye" class="w-5 h-5 mr-2"></i>
-                                    Lihat Rekap
-                                </a>
-                                <a href="{{ route('guru.absensi.edit', $j) }}" 
-                                   class="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition flex items-center">
-                                    <i data-lucide="edit-3" class="w-5 h-5 mr-2"></i>
-                                    Edit Absen
-                                </a>
+                    <div class="min-w-0">
+                        <p class="font-semibold text-gray-900 text-sm sm:text-base leading-snug">
+                            {{ $j->mapel->nama_mapel }}
+                            @if($j->mapel->kode)
+                                <span class="text-xs text-gray-400">({{ $j->mapel->kode }})</span>
                             @endif
+                        </p>
+
+                        <div class="flex flex-wrap gap-x-3 gap-y-1 mt-1 text-xs text-gray-500">
+                            <span class="flex items-center gap-1">
+                                <i data-lucide="users" class="w-3 h-3"></i>
+                                {{ $j->kelas->nama_kelas }}
+                            </span>
+                            <span class="flex items-center gap-1">
+                                <i data-lucide="clock" class="w-3 h-3"></i>
+                                {{ \Carbon\Carbon::parse($j->jam_mulai)->format('H:i') }} –
+                                {{ \Carbon\Carbon::parse($j->jam_selesai)->format('H:i') }}
+                            </span>
                         </div>
                     </div>
                 </div>
+
+                {{-- BADGE --}}
+                <div class="self-start sm:self-auto">
+                    @if($j->absensi->count() > 0)
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            <i data-lucide="check-circle" class="w-3 h-3"></i>
+                            Sudah
+                        </span>
+                    @else
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                            <i data-lucide="clock" class="w-3 h-3"></i>
+                            Belum
+                        </span>
+                    @endif
+                </div>
+
             </div>
+
+            {{-- ACTION --}}
+            <div class="mt-4 pt-3 border-t border-gray-100 flex flex-col sm:flex-row gap-2">
+
+                @if($j->absensi->count() > 0)
+
+                    <a href="{{ route('guru.absensi.show', $j) }}"
+                       class="w-full sm:w-auto px-4 py-2 text-xs font-semibold rounded-xl bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 transition flex items-center justify-center gap-1.5">
+                        <i data-lucide="eye" class="w-3 h-3"></i>
+                        Lihat rekap
+                    </a>
+
+                    <a href="{{ route('guru.absensi.edit', $j) }}"
+                       class="w-full sm:w-auto px-4 py-2 text-xs font-semibold rounded-xl bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 transition flex items-center justify-center gap-1.5">
+                        <i data-lucide="edit-3" class="w-3 h-3"></i>
+                        Edit absen
+                    </a>
+
+                @else
+
+                    <a href="{{ route('guru.absensi.create', $j) }}"
+                       class="w-full sm:w-auto px-5 py-2 text-xs font-bold rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-sm transition flex items-center justify-center gap-1.5">
+                        <i data-lucide="user-check" class="w-3 h-3"></i>
+                        Absen sekarang
+                    </a>
+
+                @endif
+
+            </div>
+
         </div>
+
         @empty
-        <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-20 text-center">
-            <i data-lucide="calendar-x2" class="w-24 h-24 mx-auto text-gray-300 mb-6"></i>
-            <h3 class="text-2xl font-bold text-gray-700 mb-2">Tidak Ada Jadwal Hari Ini</h3>
-            <p class="text-gray-500 text-lg">Nikmati hari libur Anda!</p>
+        <div class="bg-white rounded-2xl border border-gray-200 p-12 sm:p-16 text-center">
+            <div class="bg-indigo-50 rounded-full w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="calendar-x2" class="w-6 h-6 sm:w-8 sm:h-8 text-indigo-400"></i>
+            </div>
+            <p class="font-semibold text-gray-700">Tidak ada jadwal hari ini</p>
+            <p class="text-sm text-gray-400 mt-1">Nikmati hari libur Anda!</p>
         </div>
         @endforelse
     </div>
+
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    lucide.createIcons();
+});
+</script>
 @endsection

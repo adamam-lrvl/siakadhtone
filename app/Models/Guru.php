@@ -25,7 +25,7 @@ class Guru extends Model
         'alamat',
     ];
 
-    // LOG AKTIVITAS
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
@@ -37,20 +37,20 @@ class Guru extends Model
                  ($eventName === 'updated' ? 'diperbarui' : 'dihapus')));
     }
 
-    // RELASI USER
+
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    // RELASI MAPEL — 1 GURU BISA NGAJAR BANYAK MAPEL (MANY-TO-MANY)
+
     public function mapels()
     {
         return $this->belongsToMany(Mapel::class, 'guru_mapel', 'guru_id', 'mapel_id')
                     ->withTimestamps();
     }
 
-    // RELASI JADWAL MENGAJAR
+
     public function jadwalMengajar()
     {
         return $this->hasMany(Jadwal::class, 'guru_id');

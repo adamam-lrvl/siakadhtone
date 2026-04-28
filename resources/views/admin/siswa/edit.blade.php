@@ -58,7 +58,7 @@
                         @error('nama') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                     </div>
 
-                    <!-- EMAIL — BARU DITAMBAH -->
+                    <!-- EMAIL -->
                     <div>
                         <label class="block text-xs font-semibold text-gray-700 mb-1.5">Email Login</label>
                         <input type="email" name="email" value="{{ old('email', $siswa->user->email) }}"

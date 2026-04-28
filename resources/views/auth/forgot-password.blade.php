@@ -1,124 +1,162 @@
 <!DOCTYPE html>
-<html lang="id" class="h-full bg-gray-100">
+<html lang="id" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lupa Password - SIAKAD HTONE</title>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <link href="https://rsms.me/inter/inter.css" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
-
-    <style>
-        /* ANIMASI HALUS SAMA KAYAK LOGIN */
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-        .fade-up { animation: fadeInUp .6s ease-out forwards; }
-
-        /* CARD SAMA PERSIS LOGIN */
-        .card-form {
-            background: #ffffff;
-            border: 1px solid #e5e7eb;
-            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.06);
-        }
-
-        /* BUTTON MORPH HOVER SAMA PERSIS */
-        .btn-morph {
-            transition: all .25s ease;
-        }
-
-        .btn-morph:hover {
-            border-radius: 2rem;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(99,102,241,0.25);
-        }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 
-<body class="min-h-screen flex items-center justify-center px-6">
+<body class="min-h-screen font-['Inter'] antialiased flex">
 
-    <div class="w-full max-w-md fade-up">
-
-        <!-- Logo Title SAMA PERSIS LOGIN -->
-        <div class="text-center mb-8">
-            <div class="mx-auto w-20 h-20 rounded-3xl bg-transparent flex items-center justify-center shadow-lg">
-                <img src="{{ asset('loho-sekolah.png') }}" alt="Logo" class="w-full h-full object-cover rounded-3xl">
+    {{-- PANEL KIRI — BIRU (hidden di HP) --}}
+    <div class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-600 to-indigo-700
+                flex-col items-center justify-center p-12 text-white">
+        <div class="max-w-sm text-center">
+            <div class="w-20 h-20 bg-white/15 rounded-3xl flex items-center justify-center mx-auto mb-6 overflow-hidden">
+                <img src="{{ asset('loho-sekolah.png') }}" alt="Logo"
+                     class="w-full h-full object-contain"
+                     onerror="this.style.display='none'; this.parentElement.innerHTML='<span class=\'text-white font-bold text-2xl\'>S</span>'">
             </div>
-
-            <h1 class="mt-4 text-3xl font-extrabold text-gray-900">
-                SIAKAD HTONE
-            </h1>
-
-            <p class="text-gray-500 mt-1 text-sm">Sistem Informasi Akademik SMK HANG TUAH 1 JAKARTA</p>
-        </div>
-
-        <!-- CARD FORM SAMA PERSIS LOGIN -->
-        <div class="card-form rounded-2xl p-8 fade-up">
-
-            <h2 class="text-2xl font-semibold text-gray-800 text-center mb-6">
-                Lupa Password?
-            </h2>
-
-            <p class="text-center text-gray-600 mb-6 text-sm">
-                Masukkan email Anda, kami akan kirim link reset password.
+            <h1 class="text-3xl font-bold mb-2">SIAKAD HTONE</h1>
+            <p class="text-blue-200 text-sm mb-10">
+                Sistem Informasi Akademik<br>SMK Hang Tuah 1 Jakarta
             </p>
 
-            <!-- FLASH MESSAGE -->
-            @if (session('status'))
-                <div class="mb-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg text-sm text-center">
+            {{-- INFO --}}
+            <div class="bg-white/10 rounded-2xl p-6 text-left">
+                <div class="flex items-start gap-3 mb-4">
+                    <div class="bg-white/20 rounded-lg p-1.5 flex-shrink-0 mt-0.5">
+                        <i data-lucide="mail" class="w-4 h-4"></i>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-sm">Cek email kamu</p>
+                        <p class="text-blue-200 text-xs mt-0.5">Kami akan kirim link reset ke email yang terdaftar</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-3 mb-4">
+                    <div class="bg-white/20 rounded-lg p-1.5 flex-shrink-0 mt-0.5">
+                        <i data-lucide="link" class="w-4 h-4"></i>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-sm">Klik link di email</p>
+                        <p class="text-blue-200 text-xs mt-0.5">Link berlaku selama 60 menit setelah dikirim</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-3">
+                    <div class="bg-white/20 rounded-lg p-1.5 flex-shrink-0 mt-0.5">
+                        <i data-lucide="lock" class="w-4 h-4"></i>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-sm">Buat password baru</p>
+                        <p class="text-blue-200 text-xs mt-0.5">Masukkan password baru yang aman</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- PANEL KANAN — FORM --}}
+    <div class="flex-1 flex flex-col items-center justify-center
+                bg-gray-50 px-6 py-12 min-h-screen">
+
+        {{-- LOGO MOBILE --}}
+        <div class="lg:hidden text-center mb-8">
+            <div class="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-3 overflow-hidden">
+                <img src="{{ asset('loho-sekolah.png') }}" alt="Logo"
+                     class="w-full h-full object-contain"
+                     onerror="this.style.display='none'">
+            </div>
+            <p class="font-bold text-gray-900">SIAKAD HTONE</p>
+            <p class="text-xs text-gray-400">SMK Hang Tuah 1 Jakarta</p>
+        </div>
+
+        <div class="w-full max-w-sm">
+
+            {{-- JUDUL --}}
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-900">Lupa password?</h2>
+                <p class="text-sm text-gray-400 mt-1">
+                    Masukkan email kamu, kami akan kirim link reset password.
+                </p>
+            </div>
+
+            {{-- STATUS --}}
+            @if(session('status'))
+                <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3
+                            rounded-xl flex items-center gap-3 text-sm mb-6">
+                    <i data-lucide="check-circle" class="w-4 h-4 flex-shrink-0"></i>
                     {{ session('status') }}
                 </div>
             @endif
 
-            <form method="POST" action="{{ route('password.email') }}" class="space-y-6">
+            {{-- ERROR --}}
+            @if($errors->any())
+                <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3
+                            rounded-xl flex items-center gap-3 text-sm mb-6">
+                    <i data-lucide="alert-circle" class="w-4 h-4 flex-shrink-0"></i>
+                    {{ $errors->first() }}
+                </div>
+            @endif
+
+            {{-- FORM --}}
+            <form method="POST" action="{{ route('password.email') }}" class="space-y-4">
                 @csrf
 
-                <!-- Email -->
+                {{-- EMAIL --}}
                 <div>
-                    <label class="text-gray-700 font-medium flex items-center gap-2 mb-2">
-                        <i data-lucide="mail" class="w-4 h-4 text-indigo-500"></i>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1.5">
                         Email
                     </label>
-                    <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus
-                        class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-300 text-gray-800
-                        focus:ring-2 focus:ring-indigo-400 focus:bg-white transition"
-                        placeholder="example@gmail.com">
-
-                    @error('email')
-                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
+                    <div class="relative">
+                        <i data-lucide="mail" class="absolute left-3.5 top-1/2 -translate-y-1/2
+                                                      text-gray-400 w-4 h-4"></i>
+                        <input type="email" name="email" value="{{ old('email') }}"
+                               required autofocus
+                               placeholder="contoh@email.com"
+                               class="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200
+                                      rounded-xl text-sm text-gray-800 focus:outline-none
+                                      focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                                      transition @error('email') border-red-400 bg-red-50 @enderror">
+                    </div>
                 </div>
 
-                <!-- Submit Button SAMA PERSIS LOGIN -->
+                {{-- SUBMIT --}}
                 <button type="submit"
-                    class="btn-morph w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 
-                    text-white font-semibold transition-all">
-                    KIRIM LINK RESET
+                        class="w-full py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600
+                               hover:from-blue-700 hover:to-indigo-700 text-white font-semibold
+                               rounded-xl text-sm shadow-sm hover:shadow-md transition mt-2">
+                    Kirim link reset
                 </button>
 
             </form>
 
-            <!-- Kembali ke Login -->
-            <div class="mt-6 text-center">
+            {{-- KEMBALI --}}
+            <div class="mt-5 text-center">
                 <a href="{{ route('login') }}"
-                   class="text-sm text-indigo-600 hover:text-indigo-500 underline flex items-center justify-center gap-1">
-                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
-                    Kembali ke Login
+                   class="inline-flex items-center gap-1.5 text-xs font-semibold
+                          text-gray-500 hover:text-gray-700 transition">
+                    <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+                    Kembali ke halaman login
                 </a>
             </div>
 
-            <!-- Footer SAMA PERSIS -->
-            <p class="text-center text-gray-400 mt-8 text-sm">
-                © {{ date('Y') }} SIAKAD HTONE — All rights reserved.
+            {{-- FOOTER --}}
+            <p class="text-center text-xs text-gray-400 mt-8">
+                © {{ date('Y') }} SIAKAD HTONE — SMK Hang Tuah 1 Jakarta
             </p>
+
         </div>
     </div>
 
-    <script>
-        lucide.createIcons();
-    </script>
-
 </body>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        lucide.createIcons();
+    });
+</script>
 </html>

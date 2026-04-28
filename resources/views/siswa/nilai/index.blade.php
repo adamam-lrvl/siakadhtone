@@ -3,113 +3,179 @@
 @section('title', 'Rekap Nilai Saya')
 
 @section('content')
-<div class="max-w-7xl mx-auto space-y-8">
+<div class="max-w-5xl mx-auto px-4 py-6 space-y-6">
 
-    <!-- HEADER INDIGO-PURPLE -->
-    <div class="bg-gradient-to-r from-indigo-600 to-purple-700 rounded-2xl p-8 text-white shadow-2xl">
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between">
-            <div>
-                <h1 class="text-3xl md:text-4xl font-bold mb-2">
-                    Rekap Nilai Saya
+    {{-- HEADER BIRU --}}
+    <div class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl p-6 text-white">
+        <div class="flex items-start justify-between gap-4">
+            <div class="min-w-0">
+                <h1 class="text-2xl font-bold flex items-center gap-2">
+                    <i data-lucide="trending-up" class="w-6 h-6 flex-shrink-0"></i>
+                    <span>Rekap nilai saya</span>
                 </h1>
-                <p class="text-indigo-100 text-lg">
-                    {{ Auth::user()->siswa->nama }} • Kelas {{ Auth::user()->siswa->kelas->nama_kelas ?? '-' }}
-                </p>
+                <div class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-sm text-blue-100">
+                    <span class="flex items-center gap-1">
+                        <i data-lucide="user" class="w-3.5 h-3.5"></i>
+                        {{ Auth::user()->siswa->nama }}
+                    </span>
+                    <span class="text-blue-300">•</span>
+                    <span class="flex items-center gap-1">
+                        <i data-lucide="school" class="w-3.5 h-3.5"></i>
+                        {{ Auth::user()->siswa->kelas->nama_kelas ?? '-' }}
+                    </span>
+                </div>
+            </div>
+
+            {{-- EXPORT --}}
+            <div class="flex gap-2 flex-shrink-0">
+                <a href="{{ route('siswa.nilai.export.excel') }}"
+                   class="flex items-center gap-1.5 px-3 py-2 bg-white/15 hover:bg-white/25
+                          text-white text-xs font-semibold rounded-xl transition">
+                    <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+                    <span class="hidden sm:inline">Excel</span>
+                </a>
+                <a href="{{ route('siswa.nilai.export.pdf') }}"
+                   class="flex items-center gap-1.5 px-3 py-2 bg-white/15 hover:bg-white/25
+                          text-white text-xs font-semibold rounded-xl transition">
+                    <i data-lucide="file-text" class="w-4 h-4"></i>
+                    <span class="hidden sm:inline">PDF</span>
+                </a>
             </div>
         </div>
     </div>
 
-    <!-- CARD MODE HP -->
-    <div class="space-y-6 lg:hidden">
-        @forelse($rekapNilai as $r)
-            <div class="bg-white rounded-2xl shadow-lg border border-indigo-100 p-6 hover:shadow-2xl transition">
-                <div class="flex items-center justify-between mb-4">
-                    <p class="font-extrabold text-purple-800 text-xl">{{ $r->mapel->nama_mapel }}</p>
-                    <span class="px-4 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-800">
-                        Semester {{ $r->semester }}
+    {{-- SEMESTER 1 --}}
+    @php
+        $smt1 = collect($rekapNilai)->where('semester', 1);
+        $smt2 = collect($rekapNilai)->where('semester', 2);
+    @endphp
+
+    @foreach([1 => $smt1, 2 => $smt2] as $smt => $data)
+    @if($data->count() > 0)
+    <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+
+        {{-- HEADER CARD --}}
+        <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+            <div class="flex items-center gap-3">
+                <div class="{{ $smt == 1 ? 'bg-blue-50' : 'bg-indigo-50' }} rounded-xl p-2">
+                    <i data-lucide="calendar" class="w-4 h-4 {{ $smt == 1 ? 'text-blue-600' : 'text-indigo-600' }}"></i>
+                </div>
+                <div>
+                    <p class="font-semibold text-gray-900 text-sm">Semester {{ $smt }}</p>
+                    <p class="text-xs text-gray-400">{{ $data->count() }} mata pelajaran</p>
+                </div>
+            </div>
+            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold
+                         {{ $smt == 1
+                             ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                             : 'bg-indigo-50 text-indigo-700 border border-indigo-200' }}">
+                {{ $smt == 1 ? 'Ganjil' : 'Genap' }}
+            </span>
+        </div>
+
+        {{-- MOBILE: CARD --}}
+        <div class="lg:hidden divide-y divide-gray-100">
+            @foreach($data as $r)
+            <div class="p-4">
+                <div class="flex items-center justify-between mb-3">
+                    <p class="font-semibold text-gray-900 text-sm">{{ $r->mapel->nama_mapel }}</p>
+                    @php
+                        $badge = match($r->predikat) {
+                            'A' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                            'B' => 'bg-blue-50 text-blue-700 border-blue-200',
+                            'C' => 'bg-amber-50 text-amber-700 border-amber-200',
+                            'D' => 'bg-orange-50 text-orange-700 border-orange-200',
+                            default => 'bg-red-50 text-red-700 border-red-200',
+                        };
+                    @endphp
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs
+                                 font-bold border {{ $badge }}">
+                        {{ $r->predikat }}
                     </span>
                 </div>
-                <div class="grid grid-cols-2 gap-4 text-center">
-                    <div class="bg-indigo-50 rounded-xl p-4 border border-indigo-200">
-                        <p class="text-sm text-indigo-700">Rata-rata</p>
-                        <p class="text-3xl font-extrabold text-indigo-900">{{ $r->rata_rata }}</p>
+                <div class="grid grid-cols-4 gap-2 text-center">
+                    <div class="bg-gray-50 rounded-xl p-2.5">
+                        <p class="text-xs text-gray-400">Tugas</p>
+                        <p class="font-bold text-gray-800 text-sm">{{ $r->tugas }}</p>
                     </div>
-                    <div class="bg-purple-50 rounded-xl p-4 border border-purple-200">
-                        <p class="text-sm text-purple-700">Predikat</p>
-                        <p class="text-3xl font-extrabold text-purple-900">{{ $r->predikat }}</p>
+                    <div class="bg-gray-50 rounded-xl p-2.5">
+                        <p class="text-xs text-gray-400">UTS</p>
+                        <p class="font-bold text-gray-800 text-sm">{{ $r->uts }}</p>
                     </div>
-                </div>
-                <div class="mt-4 grid grid-cols-3 gap-3 text-sm text-center">
-                    <div>
-                        <p class="text-gray-500">Tugas</p>
-                        <p class="font-bold text-indigo-700">{{ $r->tugas }}</p>
+                    <div class="bg-gray-50 rounded-xl p-2.5">
+                        <p class="text-xs text-gray-400">UAS</p>
+                        <p class="font-bold text-gray-800 text-sm">{{ $r->uas }}</p>
                     </div>
-                    <div>
-                        <p class="text-gray-500">UTS</p>
-                        <p class="font-bold text-indigo-700">{{ $r->uts }}</p>
-                    </div>
-                    <div>
-                        <p class="text-gray-500">UAS</p>
-                        <p class="font-bold text-indigo-700">{{ $r->uas }}</p>
+                    <div class="{{ $smt == 1 ? 'bg-blue-50' : 'bg-indigo-50' }} rounded-xl p-2.5">
+                        <p class="text-xs {{ $smt == 1 ? 'text-blue-400' : 'text-indigo-400' }}">Rata</p>
+                        <p class="font-bold {{ $smt == 1 ? 'text-blue-700' : 'text-indigo-700' }} text-sm">
+                            {{ $r->rata_rata }}
+                        </p>
                     </div>
                 </div>
             </div>
-        @empty
-            <div class="text-center py-20 text-gray-500">
-                <i data-lucide="book-x" class="w-24 h-24 mx-auto mb-6 text-gray-300"></i>
-                <p class="text-xl font-medium">Belum ada nilai</p>
-            </div>
-        @endforelse
-    </div>
+            @endforeach
+        </div>
 
-    <!-- TABLE MODE DESKTOP -->
-    <div class="hidden lg:block bg-white rounded-2xl shadow-lg border border-indigo-100 overflow-hidden">
-        <div class="overflow-x-auto">
+        {{-- DESKTOP: TABEL --}}
+        <div class="hidden lg:block overflow-x-auto">
             <table class="w-full text-sm">
-                <thead class="bg-gradient-to-r from-indigo-600 to-purple-700 text-white">
-                    <tr>
-                        <th class="px-6 py-4 text-left">Mata Pelajaran</th>
-                        <th class="px-6 py-4 text-center">Semester</th>
-                        <th class="px-6 py-4 text-center">Tugas</th>
-                        <th class="px-6 py-4 text-center">UTS</th>
-                        <th class="px-6 py-4 text-center">UAS</th>
-                        <th class="px-6 py-4 text-center">Rata-rata</th>
-                        <th class="px-6 py-4 text-center">Predikat</th>
+                <thead>
+                    <tr class="bg-gray-50 border-b border-gray-100">
+                        <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500">Mata Pelajaran</th>
+                        <th class="px-5 py-3 text-center text-xs font-semibold text-gray-500">Tugas</th>
+                        <th class="px-5 py-3 text-center text-xs font-semibold text-gray-500">UTS</th>
+                        <th class="px-5 py-3 text-center text-xs font-semibold text-gray-500">UAS</th>
+                        <th class="px-5 py-3 text-center text-xs font-semibold text-gray-500">Rata-rata</th>
+                        <th class="px-5 py-3 text-center text-xs font-semibold text-gray-500">Predikat</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-indigo-100">
-                    @forelse($rekapNilai as $r)
-                        <tr class="hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 transition">
-                            <td class="px-6 py-5 font-bold text-purple-800">{{ $r->mapel->nama_mapel }}</td>
-                            <td class="px-6 py-5 text-center">
-                                <span class="px-3 py-1 rounded-full bg-purple-100 text-purple-800 text-xs font-bold">
-                                    {{ $r->semester }}
-                                </span>
+                <tbody class="divide-y divide-gray-100">
+                    @foreach($data as $r)
+                        @php
+                            $badge = match($r->predikat) {
+                                'A' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                                'B' => 'bg-blue-50 text-blue-700 border-blue-200',
+                                'C' => 'bg-amber-50 text-amber-700 border-amber-200',
+                                'D' => 'bg-orange-50 text-orange-700 border-orange-200',
+                                default => 'bg-red-50 text-red-700 border-red-200',
+                            };
+                        @endphp
+                        <tr class="hover:bg-gray-50/70 transition {{ $loop->even ? 'bg-gray-50/30' : '' }}">
+                            <td class="px-5 py-4 font-semibold text-gray-900">{{ $r->mapel->nama_mapel }}</td>
+                            <td class="px-5 py-4 text-center text-gray-600">{{ $r->tugas }}</td>
+                            <td class="px-5 py-4 text-center text-gray-600">{{ $r->uts }}</td>
+                            <td class="px-5 py-4 text-center text-gray-600">{{ $r->uas }}</td>
+                            <td class="px-5 py-4 text-center font-bold
+                                       {{ $smt == 1 ? 'text-blue-700' : 'text-indigo-700' }}">
+                                {{ $r->rata_rata }}
                             </td>
-                            <td class="px-6 py-5 text-center text-indigo-700">{{ $r->tugas }}</td>
-                            <td class="px-6 py-5 text-center text-indigo-700">{{ $r->uts }}</td>
-                            <td class="px-6 py-5 text-center text-indigo-700">{{ $r->uas }}</td>
-                            <td class="px-6 py-5 text-center font-extrabold text-indigo-900">{{ $r->rata_rata }}</td>
-                            <td class="px-6 py-5 text-center">
-                                <span class="px-4 py-1 rounded-full text-xs font-bold
-                                    {{ $r->predikat == 'A' ? 'bg-green-100 text-green-800' :
-                                       ($r->predikat == 'B' ? 'bg-blue-100 text-blue-800' :
-                                       ($r->predikat == 'C' ? 'bg-yellow-100 text-yellow-800' :
-                                       ($r->predikat == 'D' ? 'bg-orange-100 text-orange-800' : 'bg-red-100 text-red-800'))) }}">
+                            <td class="px-5 py-4 text-center">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs
+                                             font-bold border {{ $badge }}">
                                     {{ $r->predikat }}
                                 </span>
                             </td>
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="7" class="text-center py-16 text-gray-500">
-                                Belum ada nilai
-                            </td>
-                        </tr>
-                    @endforelse
+                    @endforeach
                 </tbody>
             </table>
         </div>
+
     </div>
+    @endif
+    @endforeach
+
+    {{-- EMPTY STATE --}}
+    @if(collect($rekapNilai)->isEmpty())
+    <div class="bg-white rounded-2xl border border-gray-200 p-16 text-center">
+        <div class="bg-gray-50 rounded-full w-14 h-14 flex items-center justify-center mx-auto mb-3">
+            <i data-lucide="book-x" class="w-7 h-7 text-gray-300"></i>
+        </div>
+        <p class="font-semibold text-gray-700">Belum ada nilai</p>
+        <p class="text-xs text-gray-400 mt-1">Nilai akan muncul setelah guru menginput</p>
+    </div>
+    @endif
+
 </div>
 @endsection

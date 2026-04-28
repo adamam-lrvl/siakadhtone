@@ -10,6 +10,8 @@ use App\Models\Mapel;
 use App\Models\Nilai;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
+use Barryvdh\DomPDF\Facade\Pdf as PDF;
 
 class NilaiController extends Controller
 {
@@ -265,6 +267,130 @@ public function inputPerKategori($kelasId, $mapelId, $kategori)
 
     return view('guru.nilai.input-per-kategori', compact('kelas', 'mapel', 'kategori', 'siswa'));
 }
+
+        /**
+     * Export Rekap Nilai Kelas ke Excel
+     */
+    public function exportExcelKelas($kelasId, $mapelId, $semester = 1)
+    {
+        $kelas = Kelas::findOrFail($kelasId);
+        $mapel = Mapel::findOrFail($mapelId);
+
+        // Ambil data rekap yang sama seperti di show()
+        $siswa = $kelas->siswas()
+            ->with(['nilai' => function ($q) use ($mapelId, $semester) {
+                $q->where('mapel_id', $mapelId)
+                  ->where('semester', $semester);
+            }])
+            ->orderBy('nama')
+            ->get();
+
+        $rekap = $siswa->map(function ($s) {
+            // Logic rata-rata & predikat (sama seperti di show)
+            $nilai = $s->nilai->pluck('nilai', 'kategori');
+
+            $tugas = collect([
+                $nilai['tugas_1'] ?? 0,
+                $nilai['tugas_2'] ?? 0,
+                $nilai['tugas_3'] ?? 0,
+                $nilai['tugas_4'] ?? 0,
+                $nilai['tugas_5'] ?? 0,
+                $nilai['tugas_6'] ?? 0,
+            ])->filter()->avg() ?? 0;
+
+            $uts = $nilai['uts'] ?? 0;
+            $uas = $nilai['uas'] ?? 0;
+
+            $rataRata = round(($tugas * 0.4) + ($uts * 0.3) + ($uas * 0.3), 2);
+
+            $predikat = $rataRata >= 90 ? 'A' :
+                       ($rataRata >= 80 ? 'B' :
+                       ($rataRata >= 70 ? 'C' :
+                       ($rataRata >= 60 ? 'D' : 'E')));
+
+            return [
+                'No'          => '',
+                'Nama Siswa'  => $s->nama,
+                'NIS'         => $s->nis,
+                'Tugas 1'     => $nilai['tugas_1'] ?? '-',
+                'Tugas 2'     => $nilai['tugas_2'] ?? '-',
+                'Tugas 3'     => $nilai['tugas_3'] ?? '-',
+                'Tugas 4'     => $nilai['tugas_4'] ?? '-',
+                'Tugas 5'     => $nilai['tugas_5'] ?? '-',
+                'Tugas 6'     => $nilai['tugas_6'] ?? '-',
+                'UTS'         => $uts ?: '-',
+                'UAS'         => $uas ?: '-',
+                'Rata-rata'   => $rataRata,
+                'Predikat'    => $predikat,
+            ];
+        })->values();
+
+        return Excel::download(new class($rekap) implements 
+            \Maatwebsite\Excel\Concerns\FromCollection,
+            \Maatwebsite\Excel\Concerns\WithHeadings 
+        {
+            protected $data;
+            public function __construct($data) { $this->data = $data; }
+            public function collection() { return collect($this->data); }
+            public function headings(): array
+            {
+                return ['No', 'Nama Siswa', 'NIS', 'Tugas 1', 'Tugas 2', 'Tugas 3', 'Tugas 4', 'Tugas 5', 'Tugas 6', 'UTS', 'UAS', 'Rata-rata', 'Predikat'];
+            }
+        }, "Rekap_Nilai_{$mapel->nama_mapel}_{$kelas->nama_kelas}_Semester{$semester}.xlsx");
+    }
+
+    /**
+     * Export Rekap Nilai Kelas ke PDF
+     */
+    public function exportPdfKelas($kelasId, $mapelId, $semester = 1)
+    {
+        $kelas = Kelas::findOrFail($kelasId);
+        $mapel = Mapel::findOrFail($mapelId);
+
+        // Ambil data rekap yang sama
+        $siswa = $kelas->siswas()
+            ->with(['nilai' => function ($q) use ($mapelId, $semester) {
+                $q->where('mapel_id', $mapelId)
+                  ->where('semester', $semester);
+            }])
+            ->orderBy('nama')
+            ->get();
+
+        $rekapSiswa = $siswa->map(function ($s) {
+            $nilai = $s->nilai->pluck('nilai', 'kategori');
+
+            $tugas = collect([
+                $nilai['tugas_1'] ?? 0,
+                $nilai['tugas_2'] ?? 0,
+                $nilai['tugas_3'] ?? 0,
+                $nilai['tugas_4'] ?? 0,
+                $nilai['tugas_5'] ?? 0,
+                $nilai['tugas_6'] ?? 0,
+            ])->filter()->avg() ?? 0;
+
+            $uts = $nilai['uts'] ?? 0;
+            $uas = $nilai['uas'] ?? 0;
+
+            $rataRata = round(($tugas * 0.4) + ($uts * 0.3) + ($uas * 0.3), 2);
+
+            $predikat = $rataRata >= 90 ? 'A' :
+                       ($rataRata >= 80 ? 'B' :
+                       ($rataRata >= 70 ? 'C' :
+                       ($rataRata >= 60 ? 'D' : 'E')));
+
+            return [
+                'siswa'     => $s,
+                'nilai'     => $nilai,
+                'rata_rata' => $rataRata,
+                'predikat'  => $predikat,
+            ];
+        });
+
+        $pdf = PDF::loadView('guru.nilai.export-rekap-pdf', compact('rekapSiswa', 'kelas', 'mapel', 'semester'))
+                  ->setPaper('A4', 'landscape');
+
+        return $pdf->download("Rekap_Nilai_{$mapel->nama_mapel}_{$kelas->nama_kelas}_Semester{$semester}.pdf");
+    }
 
     /**
      * Remove the specified resource from storage.

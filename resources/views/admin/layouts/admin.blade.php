@@ -19,157 +19,247 @@
 
 <body class="h-full bg-gray-50 font-['Inter'] antialiased">
 
-<div class="flex h-screen">
+<div class="flex h-screen overflow-hidden">
 
-  
-    <aside id="sidebar" 
-        class="fixed inset-y-0 left-0 z-50 w-64 bg-gradient-to-b from-blue-600 to-blue-700 
-               text-white shadow-2xl transform -translate-x-full lg:translate-x-0 lg:static 
-               transition-transform duration-300 ease-in-out">
+    {{-- SIDEBAR --}}
+    <aside id="sidebar"
+           class="fixed inset-y-0 left-0 z-50 w-60 bg-white border-r border-gray-200
+                  transform -translate-x-full lg:translate-x-0 lg:static
+                  transition-transform duration-300 ease-in-out flex flex-col">
 
-        <div class="p-6 flex items-center space-x-3 border-b border-blue-800">
-            <div class="w-12 h-12 bg-white rounded-lg flex items-center justify-center overflow-hidden">
-                <img src="{{ asset('loho-sekolah.png') }}" alt="Logo Sekolah" class="w-full h-full object-contain">
+        {{-- LOGO --}}
+        <div class="flex items-center gap-3 px-5 py-5 border-b border-gray-100">
+            <div class="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0">
+                <img src="{{ asset('loho-sekolah.png') }}" alt="Logo"
+                     class="w-full h-full object-contain"
+                     onerror="this.style.display='none'; this.parentElement.innerHTML='<span class=\'text-white font-bold text-sm\'>S</span>'">
             </div>
-            <h1 class="text-xl font-bold">SIAKAD HT ONE</h1>
+            <div class="min-w-0">
+                <p class="font-bold text-gray-900 text-sm leading-tight">SIAKAD HT ONE</p>
+                <p class="text-xs text-gray-400">Admin Panel</p>
+            </div>
         </div>
 
-        <nav class="mt-8 space-y-2 px-4 pb-32 overflow-y-auto no-scrollbar h-[calc(100vh-160px)]">
-            <a href="{{ route('admin.dashboard') }}" class="flex items-center px-4 py-3 rounded-lg transition {{ request()->routeIs('admin.dashboard') ? 'bg-blue-800' : 'hover:bg-blue-800/70' }}">
-                <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
-                <span class="ml-4 font-medium">Dashboard</span>
+        {{-- NAV --}}
+        <nav class="flex-1 overflow-y-auto no-scrollbar px-3 py-4 space-y-0.5">
+
+            {{-- LABEL SEKSI --}}
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 mb-2">Menu</p>
+
+            <a href="{{ route('admin.dashboard') }}"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition
+                      {{ request()->routeIs('admin.dashboard')
+                          ? 'bg-blue-50 text-blue-700'
+                          : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
+                <i data-lucide="layout-dashboard" class="w-4 h-4 flex-shrink-0"></i>
+                Dashboard
             </a>
-            <a href="{{ route('admin.guru.index') }}" class="flex items-center px-4 py-3 rounded-lg transition {{ request()->routeIs('admin.guru.*') ? 'bg-blue-800' : 'hover:bg-blue-800/70' }}">
-                <i data-lucide="users" class="w-5 h-5"></i>
-                <span class="ml-4 font-medium">Guru</span>
+
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 pt-4 mb-2">Data Master</p>
+
+            <a href="{{ route('admin.guru.index') }}"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition
+                      {{ request()->routeIs('admin.guru.*')
+                          ? 'bg-blue-50 text-blue-700'
+                          : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
+                <i data-lucide="users" class="w-4 h-4 flex-shrink-0"></i>
+                Guru
             </a>
-            <a href="{{ route('admin.siswa.index') }}" class="flex items-center px-4 py-3 rounded-lg transition {{ request()->routeIs('admin.siswa.*') ? 'bg-blue-800' : 'hover:bg-blue-800/70' }}">
-                <i data-lucide="user-check" class="w-5 h-5"></i>
-                <span class="ml-4 font-medium">Siswa</span>
+
+            <a href="{{ route('admin.siswa.index') }}"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition
+                      {{ request()->routeIs('admin.siswa.*')
+                          ? 'bg-blue-50 text-blue-700'
+                          : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
+                <i data-lucide="user-check" class="w-4 h-4 flex-shrink-0"></i>
+                Siswa
             </a>
-            <a href="{{ route('admin.kelas.index') }}" class="flex items-center px-4 py-3 rounded-lg transition {{ request()->routeIs('admin.kelas.*') ? 'bg-blue-800' : 'hover:bg-blue-800/70' }}">
-                <i data-lucide="school" class="w-5 h-5"></i>
-                <span class="ml-4 font-medium">Kelas</span>
+
+            <a href="{{ route('admin.kelas.index') }}"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition
+                      {{ request()->routeIs('admin.kelas.*')
+                          ? 'bg-blue-50 text-blue-700'
+                          : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
+                <i data-lucide="school" class="w-4 h-4 flex-shrink-0"></i>
+                Kelas
             </a>
-            <a href="{{ route('admin.mapel.index') }}" class="flex items-center px-4 py-3 rounded-lg transition {{ request()->routeIs('admin.mapel.*') ? 'bg-blue-800' : 'hover:bg-blue-800/70' }}">
-                <i data-lucide="book-open" class="w-5 h-5"></i>
-                <span class="ml-4 font-medium">Mata Pelajaran</span>
+
+            <a href="{{ route('admin.mapel.index') }}"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition
+                      {{ request()->routeIs('admin.mapel.*')
+                          ? 'bg-blue-50 text-blue-700'
+                          : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
+                <i data-lucide="book-open" class="w-4 h-4 flex-shrink-0"></i>
+                Mata pelajaran
             </a>
-            <a href="{{ route('admin.jadwal.index') }}" class="flex items-center px-4 py-3 rounded-lg transition {{ request()->routeIs('admin.jadwal.*') ? 'bg-blue-800' : 'hover:bg-blue-800/70' }}">
-                <i data-lucide="calendar-clock" class="w-5 h-5"></i>
-                <span class="ml-4 font-medium">Jam Pelajaran</span>
+
+            <a href="{{ route('admin.jadwal.index') }}"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition
+                      {{ request()->routeIs('admin.jadwal.*')
+                          ? 'bg-blue-50 text-blue-700'
+                          : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
+                <i data-lucide="calendar-clock" class="w-4 h-4 flex-shrink-0"></i>
+                Jadwal pelajaran
             </a>
-            <a href="{{ route('admin.pengumuman.index') }}" class="flex items-center px-4 py-3 rounded-lg transition {{ request()->routeIs('admin.pengumuman.*') ? 'bg-blue-800' : 'hover:bg-blue-800/70' }}">
-                <i data-lucide="megaphone" class="w-5 h-5"></i>
-                <span class="ml-4 font-medium">Pengumuman</span>
+
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 pt-4 mb-2">Lainnya</p>
+
+            <a href="{{ route('admin.pengumuman.index') }}"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition
+                      {{ request()->routeIs('admin.pengumuman.*')
+                          ? 'bg-blue-50 text-blue-700'
+                          : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
+                <i data-lucide="megaphone" class="w-4 h-4 flex-shrink-0"></i>
+                Pengumuman
             </a>
+
         </nav>
 
-        <div class="absolute bottom-0 w-full p-4 border-t border-blue-800 bg-blue-700/40 backdrop-blur">
+        {{-- USER + LOGOUT --}}
+        <div class="border-t border-gray-100 p-3">
+            <div class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-gray-50 mb-1">
+                <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full
+                            flex items-center justify-center text-white font-bold text-xs flex-shrink-0">
+                    {{ strtoupper(substr(Auth::user()->name, 0, 2)) }}
+                </div>
+                <div class="min-w-0 flex-1">
+                    <p class="text-xs font-semibold text-gray-900 truncate">{{ Auth::user()->name }}</p>
+                    <p class="text-xs text-gray-400 truncate">{{ Auth::user()->email }}</p>
+                </div>
+                <button id="userDropdown" class="p-1 hover:bg-gray-200 rounded-lg transition flex-shrink-0"
+                        title="Edit profil">
+                    <i data-lucide="settings" class="w-3.5 h-3.5 text-gray-400"></i>
+                </button>
+            </div>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
-                <button type="submit" class="flex items-center w-full px-4 py-3 rounded-lg hover:bg-blue-800/70 transition">
-                    <i data-lucide="log-out" class="w-5 h-5"></i>
-                    <span class="ml-4 text-sm font-medium">Logout</span>
+                <button type="submit"
+                        class="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm
+                               font-medium text-red-600 hover:bg-red-50 transition">
+                    <i data-lucide="log-out" class="w-4 h-4 flex-shrink-0"></i>
+                    Logout
                 </button>
             </form>
         </div>
     </aside>
 
-    <!-- OVERLAY -->
-    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-60 z-40 hidden lg:hidden"></div>
+    {{-- OVERLAY --}}
+    <div id="overlay"
+         class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden"></div>
 
-    <!-- MAIN -->
-    <div class="flex-1 flex flex-col">
+    {{-- MAIN --}}
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
 
-        <!-- HEADER — CUMA GANTI AVATAR JADI BISA DIKLIK -->
-        <header class="bg-white shadow-md border-b px-5 py-4 flex items-center justify-between sticky top-0 z-30">
-            <div class="flex items-center space-x-4">
-                <button id="toggleSidebar" class="p-2.5 rounded-lg bg-blue-100 hover:bg-blue-200 transition lg:hidden">
-                    <i data-lucide="menu" class="w-6 h-6 text-blue-600"></i>
+        {{-- TOPBAR --}}
+        <header class="bg-white border-b border-gray-200 px-5 py-3.5 flex items-center
+                       justify-between sticky top-0 z-30 flex-shrink-0">
+            <div class="flex items-center gap-3">
+                <button id="toggleSidebar"
+                        class="p-2 rounded-xl hover:bg-gray-100 transition lg:hidden">
+                    <i data-lucide="menu" class="w-5 h-5 text-gray-600"></i>
                 </button>
-                <h2 class="text-xl md:text-2xl font-bold text-gray-800">@yield('title')</h2>
+                <h2 class="text-base font-semibold text-gray-900">@yield('title')</h2>
             </div>
 
-            <!-- KLIK DI SINI BUKA MODAL PROFIL -->
-            <button id="userDropdown" class="flex items-center space-x-4 group">
-                <span class="hidden sm:block text-sm font-medium text-gray-600">
-                    Hi, <strong>{{ Auth::user()->name }}</strong>
+            {{-- TOPBAR KANAN --}}
+            <div class="flex items-center gap-2">
+                <span class="hidden sm:block text-sm text-gray-500">
+                    Hi, <span class="font-semibold text-gray-800">{{ Auth::user()->name }}</span>
                 </span>
-                <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg ring-4 ring-white group-hover:ring-indigo-200 transition-all">
+                <button id="userDropdownTop"
+                        class="w-9 h-9 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full
+                               flex items-center justify-center text-white font-bold text-sm
+                               hover:opacity-90 transition">
                     {{ strtoupper(substr(Auth::user()->name, 0, 2)) }}
-                </div>
-            </button>
+                </button>
+            </div>
         </header>
 
-        <!-- CONTENT -->
-        <main class="flex-1 p-5 md:p-8 overflow-y-auto bg-gray-50">
+        {{-- CONTENT --}}
+        <main class="flex-1 overflow-y-auto p-5 md:p-8 bg-gray-50">
             @yield('content')
         </main>
     </div>
 </div>
 
-<!-- MODAL PROFIL — CANTIK BANGET, BISA EDIT SEMUA -->
-<div id="profilModal" class="fixed inset-0 bg-black bg-opacity-60 z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-screen overflow-y-auto">
-        <div class="bg-gradient-to-r from-indigo-600 to-purple-700 p-8 text-white rounded-t-3xl">
+{{-- MODAL PROFIL --}}
+<div id="profilModal"
+     class="fixed inset-0 bg-black/60 z-50 hidden items-center justify-center p-4"
+     style="display: none;">
+    <div class="bg-white rounded-2xl w-full max-w-lg overflow-hidden">
+
+        {{-- HEADER MODAL --}}
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-700 px-6 py-5 text-white">
             <div class="flex items-center justify-between">
-                <h3 class="text-2xl font-bold">Profil Pengguna</h3>
-                <button onclick="closeModal()" class="p-2 hover:bg-white/20 rounded-xl transition">
-                    <i data-lucide="x" class="w-7 h-7"></i>
+                <h3 class="text-lg font-bold">Profil pengguna</h3>
+                <button onclick="closeModal()"
+                        class="p-1.5 hover:bg-white/20 rounded-lg transition">
+                    <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
         </div>
 
-        <div class="p-8">
-            <div class="text-center mb-8">
-                <div class="w-32 h-32 mx-auto bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl flex items-center justify-center text-white text-5xl font-black shadow-2xl">
+        {{-- BODY MODAL --}}
+        <div class="p-6">
+            {{-- AVATAR --}}
+            <div class="flex items-center gap-4 mb-6 pb-6 border-b border-gray-100">
+                <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl
+                            flex items-center justify-center text-white font-bold text-xl flex-shrink-0">
                     {{ strtoupper(substr(Auth::user()->name, 0, 2)) }}
                 </div>
-                <h4 class="text-3xl font-bold text-gray-900 mt-5">{{ Auth::user()->name }}</h4>
-                <p class="text-indigo-600 text-lg">{{ Auth::user()->email }}</p>
-            </div>
-
-                    <form action="{{ route('admin.profile.update') }}" method="POST" class="space-y-6">
-            @csrf
-            @method('PATCH')
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-2">Nama Lengkap</label>
-                    <input type="text" name="name" value="{{ Auth::user()->name }}" required 
-                        class="w-full px-5 py-4 border-2 border-gray-200 rounded-2xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition">
-                </div>
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-2">Email</label>
-                    <input type="email" name="email" value="{{ Auth::user()->email }}" required 
-                        class="w-full px-5 py-4 border-2 border-gray-200 rounded-2xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition">
-                </div>
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-2">No. HP</label>
-                    <input type="text" name="no_hp" value="{{ Auth::user()->no_hp ?? '' }}" 
-                        placeholder="08123456789"
-                        class="w-full px-5 py-4 border-2 border-gray-200 rounded-2xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition">
-                </div>
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-2">Alamat</label>
-                    <input type="text" name="alamat" value="{{ Auth::user()->alamat ?? '' }}" 
-                        placeholder="Masukkan alamat lengkap"
-                        class="w-full px-5 py-4 border-2 border-gray-200 rounded-2xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition">
+                    <p class="font-semibold text-gray-900">{{ Auth::user()->name }}</p>
+                    <p class="text-sm text-gray-400">{{ Auth::user()->email }}</p>
                 </div>
             </div>
 
-            <div class="flex gap-4 justify-end pt-6">
-                <button type="button" onclick="closeModal()" 
-                        class="px-8 py-4 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-2xl transition">
-                    Batal
-                </button>
-                <button type="submit" 
-                        class="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-700 hover:from-indigo-700 hover:to-purple-800 text-white font-bold rounded-2xl shadow-xl hover:shadow-2xl transition">
-                    Simpan Perubahan
-                </button>
-            </div>
-        </form>
+            <form action="{{ route('admin.profile.update') }}" method="POST" class="space-y-4">
+                @csrf
+                @method('PATCH')
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1.5">Nama lengkap</label>
+                        <input type="text" name="name" value="{{ Auth::user()->name }}" required
+                               class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm
+                                      focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1.5">Email</label>
+                        <input type="email" name="email" value="{{ Auth::user()->email }}" required
+                               class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm
+                                      focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1.5">No. HP</label>
+                        <input type="text" name="no_hp" value="{{ Auth::user()->no_hp ?? '' }}"
+                               placeholder="08123456789"
+                               class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm
+                                      focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1.5">Alamat</label>
+                        <input type="text" name="alamat" value="{{ Auth::user()->alamat ?? '' }}"
+                               placeholder="Alamat lengkap"
+                               class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm
+                                      focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                    </div>
+                </div>
+
+                <div class="flex gap-3 justify-end pt-2">
+                    <button type="button" onclick="closeModal()"
+                            class="px-4 py-2.5 border border-gray-200 rounded-xl text-sm font-semibold
+                                   text-gray-700 hover:bg-gray-50 transition">
+                        Batal
+                    </button>
+                    <button type="submit"
+                            class="px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600
+                                   hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl
+                                   text-sm font-semibold shadow-sm hover:shadow-md transition">
+                        Simpan perubahan
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -178,9 +268,8 @@
 document.addEventListener("DOMContentLoaded", () => {
     lucide.createIcons();
 
-    // Sidebar toggle
-    const sidebar = document.getElementById("sidebar");
-    const overlay = document.getElementById("overlay");
+    const sidebar   = document.getElementById("sidebar");
+    const overlay   = document.getElementById("overlay");
     const toggleBtn = document.getElementById("toggleSidebar");
 
     toggleBtn?.addEventListener("click", () => {
@@ -193,81 +282,68 @@ document.addEventListener("DOMContentLoaded", () => {
         overlay.classList.add("hidden");
     });
 
-    // Modal profil
-    const userDropdown = document.getElementById("userDropdown");
     const profilModal = document.getElementById("profilModal");
 
-    window.closeModal = () => profilModal.classList.add("hidden");
+    window.closeModal = () => {
+        profilModal.style.display = "none";
+    };
 
-    userDropdown?.addEventListener("click", () => {
-        profilModal.classList.remove("hidden");
-    });
+    const openModal = () => {
+        profilModal.style.display = "flex";
+        lucide.createIcons();
+    };
+
+    document.getElementById("userDropdown")?.addEventListener("click", openModal);
+    document.getElementById("userDropdownTop")?.addEventListener("click", openModal);
 
     profilModal?.addEventListener("click", (e) => {
         if (e.target === profilModal) closeModal();
     });
 });
 
-// =======================
-// SWEETALERT DELETE GLOBAL (INDIGO / MAPEL STYLE)
-// =======================
-document.addEventListener("click", function (e) {
+document.addEventListener("click", function(e) {
     const deleteButton = e.target.closest(".btn-delete");
     if (!deleteButton) return;
-
     e.preventDefault();
     const form = deleteButton.closest("form");
-
     Swal.fire({
         title: "Hapus Data?",
         text: "Data yang dihapus tidak dapat dikembalikan!",
         icon: "warning",
         showCancelButton: true,
-
-        // 🔵 BIRU INDIGO (BUKAN MERAH)
-        confirmButtonColor: "#4f46e5", // indigo-600
-        cancelButtonColor: "#9ca3af",  // gray-400
-
+        confirmButtonColor: "#2563eb",
+        cancelButtonColor: "#9ca3af",
         confirmButtonText: "Ya, hapus",
         cancelButtonText: "Batal",
         customClass: { popup: "rounded-2xl" }
     }).then((result) => {
-        if (result.isConfirmed) {
-            form.submit();
-        }
+        if (result.isConfirmed) form.submit();
     });
 });
 </script>
 
-
 @stack('scripts')
 
-{{-- SWEETALERT SUCCESS --}}
 @if(session('success'))
 <script>
 Swal.fire({
-    icon: 'success',
-    title: 'Berhasil!',
+    icon: 'success', title: 'Berhasil!',
     text: "{{ session('success') }}",
-    timer: 2000,
-    showConfirmButton: false,
+    timer: 2000, showConfirmButton: false,
     customClass: { popup: 'rounded-2xl' }
 });
 </script>
 @endif
 
-{{-- SWEETALERT ERROR --}}
 @if(session('error'))
 <script>
 Swal.fire({
-    icon: 'error',
-    title: 'Gagal!',
+    icon: 'error', title: 'Gagal!',
     text: "{{ session('error') }}",
     customClass: { popup: 'rounded-2xl' }
 });
 </script>
 @endif
-
 
 </body>
 </html>

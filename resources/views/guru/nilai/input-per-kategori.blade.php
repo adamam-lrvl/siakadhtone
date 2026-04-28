@@ -3,95 +3,148 @@
 @section('title', 'Input Nilai • ' . ucwords(str_replace('_', ' ', $kategori)))
 
 @section('content')
-<div class="min-h-screen bg-gray-50 px-4 py-8">
+<div class="max-w-4xl mx-auto px-4 py-6 space-y-6">
 
-    <!-- HEADER INDIGO-PURPLE -->
-    <div class="max-w-4xl mx-auto text-center mb-10">
-        <h1 class="text-3xl md:text-4xl font-extrabold text-indigo-900 mb-4">
-            Input Nilai {{ ucwords(str_replace('_', ' ', $kategori)) }}
-        </h1>
-        <div class="bg-white rounded-3xl shadow-xl p-6 border border-indigo-200">
-            <p class="text-xl md:text-2xl font-bold text-purple-700">
-                {{ $mapel->nama_mapel }}
-            </p>
-            <p class="text-lg md:text-xl text-indigo-800 mt-1">
-                {{ $kelas->nama_kelas }}
-            </p>
+    {{-- HEADER BIRU --}}
+    <div class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl p-6 text-white">
+        <div class="flex items-start justify-between gap-4">
+            <div class="min-w-0">
+                <h1 class="text-2xl font-bold flex items-center gap-2">
+                    <i data-lucide="edit-3" class="w-6 h-6 flex-shrink-0"></i>
+                    <span>Input nilai {{ ucwords(str_replace('_', ' ', $kategori)) }}</span>
+                </h1>
+                <div class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-sm text-blue-100">
+                    <span class="flex items-center gap-1">
+                        <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
+                        {{ $mapel->nama_mapel }}
+                    </span>
+                    <span class="text-blue-300">•</span>
+                    <span class="flex items-center gap-1">
+                        <i data-lucide="users" class="w-3.5 h-3.5"></i>
+                        {{ $kelas->nama_kelas }}
+                    </span>
+                    <span class="text-blue-300">•</span>
+                    <span class="flex items-center gap-1">
+                        <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+                        Semester {{ request('semester', 1) }}
+                        ({{ request('semester', 1) == 1 ? 'Ganjil' : 'Genap' }})
+                    </span>
+                </div>
+            </div>
+            <div class="bg-white/15 rounded-xl px-4 py-2 text-center flex-shrink-0">
+                <p class="text-xl font-bold">{{ $siswa->count() }}</p>
+                <p class="text-xs text-blue-100">Siswa</p>
+            </div>
         </div>
     </div>
 
-    <!-- FORM -->
-    <div class="max-w-4xl mx-auto">
-        <form action="{{ route('guru.nilai.simpan-kategori', [$kelas->id, $mapel->id, $kategori]) }}" method="POST">
-            @csrf
+    {{-- FORM --}}
+    <form action="{{ route('guru.nilai.simpan-kategori', [$kelas->id, $mapel->id, $kategori]) }}"
+          method="POST">
+        @csrf
 
-            <!-- SEMESTER SELECT INDIGO -->
-            <div class="text-center mb-10">
-                <label class="text-base font-bold text-indigo-900 mr-4">Semester</label>
-                <select name="semester" class="px-8 py-4 text-xl font-bold rounded-2xl border-4 border-indigo-500 focus:ring-8 focus:ring-indigo-300 focus:outline-none transition-all bg-white shadow-lg">
-                    <option value="1" {{ old('semester', 1) == 1 ? 'selected' : '' }}>Semester 1</option>
-                    <option value="2" {{ old('semester', 1) == 2 ? 'selected' : '' }}>Semester 2</option>
-                </select>
+        {{-- SEMESTER — hidden + display --}}
+        <input type="hidden" name="semester" value="{{ request('semester', 1) }}">
+
+        <div class="bg-white rounded-2xl border border-gray-200 px-5 py-3.5 mb-4
+                    flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="{{ request('semester', 1) == 1 ? 'bg-blue-50' : 'bg-indigo-50' }} rounded-xl p-2">
+                    <i data-lucide="calendar" class="w-4 h-4 {{ request('semester', 1) == 1 ? 'text-blue-600' : 'text-indigo-600' }}"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-semibold text-gray-900">
+                        Semester {{ request('semester', 1) }}
+                    </p>
+                    <p class="text-xs text-gray-400">
+                        {{ request('semester', 1) == 1 ? 'Ganjil' : 'Genap' }}
+                    </p>
+                </div>
             </div>
+            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold
+                         {{ request('semester', 1) == 1
+                             ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                             : 'bg-indigo-50 text-indigo-700 border border-indigo-200' }}">
+                {{ request('semester', 1) == 1 ? 'Semester 1' : 'Semester 2' }}
+            </span>
+        </div>
 
-            <!-- DAFTAR SISWA — PREMIUM CARD -->
-            <div class="space-y-6">
-                @foreach($siswa as $index => $s)
-                    @php
-                        $nilaiLama = optional($s->nilai->first())->nilai ?? '';
-                    @endphp
+        {{-- DAFTAR SISWA --}}
+        <div class="space-y-3">
+            @foreach($siswa as $index => $s)
+                @php
+                    $nilaiLama = optional($s->nilai->first())->nilai ?? '';
+                @endphp
 
-                    <div class="bg-white rounded-3xl shadow-xl border-2 border-indigo-100 p-6 hover:shadow-2xl hover:border-indigo-300 transition-all duration-300">
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
-                            
-                            <!-- INFO SISWA -->
-                            <div class="flex items-center gap-5 min-w-0 flex-1">
-                                <span class="text-3xl font-extrabold text-purple-600 w-12 text-right flex-shrink-0">
-                                    {{ $index + 1 }}
-                                </span>
-                                <div class="min-w-0 flex-1">
-                                    <p class="font-extrabold text-indigo-900 text-xl truncate">{{ $s->nama }}</p>
-                                    <p class="text-sm text-indigo-600 font-medium">NIS: {{ $s->nis }}</p>
-                                </div>
-                            </div>
+                <div class="bg-white rounded-2xl border border-gray-200 p-4
+                            hover:border-indigo-300 transition-all">
+                    <div class="flex items-center gap-3">
 
-                            <!-- INPUT NILAI + BADGE -->
-                            <div class="flex items-center gap-4 flex-shrink-0">
-                                @if($nilaiLama)
-                                    <span class="px-5 py-2 bg-purple-100 text-purple-800 rounded-full text-base font-extrabold whitespace-nowrap shadow-md">
-                                        {{ number_format($nilaiLama, 2) }}
-                                    </span>
-                                @endif
-                                <input type="number"
-                                       name="nilai[{{ $s->id }}]"
-                                       value="{{ old('nilai.' . $s->id, $nilaiLama) }}"
-                                       class="w-32 px-6 py-5 text-2xl font-extrabold text-center rounded-2xl border-4 border-indigo-300 focus:border-purple-600 focus:ring-8 focus:ring-purple-200 transition-all shadow-inner [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                       min="0"
-                                       max="100"
-                                       step="0.01"
-                                       placeholder="0"
-                                       oninput="if(this.value > 100) this.value = 100; if(this.value < 0) this.value = 0;">
-                            </div>
+                        {{-- NOMOR --}}
+                        <div class="w-8 h-8 bg-indigo-50 rounded-full flex items-center justify-center
+                                    text-indigo-600 font-bold text-xs flex-shrink-0">
+                            {{ $index + 1 }}
                         </div>
+
+                        {{-- INFO SISWA --}}
+                        <div class="flex-1 min-w-0">
+                            <p class="font-semibold text-gray-900 truncate">{{ $s->nama }}</p>
+                            <p class="text-xs text-gray-400">NIS: {{ $s->nis }}</p>
+                        </div>
+
+                        {{-- NILAI LAMA --}}
+                        @if($nilaiLama)
+                            <div class="flex-shrink-0 text-center hidden sm:block">
+                                <p class="text-xs text-gray-400">Nilai lama</p>
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs
+                                             font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                                    {{ number_format($nilaiLama, 2) }}
+                                </span>
+                            </div>
+                        @endif
+
+                        {{-- INPUT NILAI --}}
+                        <div class="flex-shrink-0">
+                            <input type="number"
+                                   name="nilai[{{ $s->id }}]"
+                                   value="{{ old('nilai.' . $s->id, $nilaiLama) }}"
+                                   min="0" max="100" step="0.01"
+                                   placeholder="0"
+                                   oninput="if(this.value > 100) this.value = 100; if(this.value < 0) this.value = 0;"
+                                   class="w-20 px-3 py-2 text-center font-bold text-gray-900 text-sm
+                                          border border-gray-200 rounded-xl bg-gray-50
+                                          focus:outline-none focus:ring-2 focus:ring-blue-500
+                                          focus:border-blue-500 focus:bg-white transition
+                                          [appearance:textfield]
+                                          [&::-webkit-outer-spin-button]:appearance-none
+                                          [&::-webkit-inner-spin-button]:appearance-none">
+                        </div>
+
                     </div>
-                @endforeach
-            </div>
+                </div>
+            @endforeach
+        </div>
 
-            <!-- TOMBOL INDIGO-PURPLE -->
-            <div class="mt-12 flex flex-col sm:flex-row gap-6 justify-center">
-                <a href="{{ route('guru.nilai.pilih-kategori', [$kelas->id, $mapel->id]) }}"
-                   class="px-12 py-5 bg-gradient-to-r from-gray-600 to-gray-800 hover:from-gray-700 hover:to-gray-900 text-white font-bold text-xl rounded-2xl shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all text-center">
-                    Kembali
-                </a>
-                <button type="submit"
-                        class="px-20 py-5 bg-gradient-to-r from-indigo-600 to-purple-700 hover:from-indigo-700 hover:to-purple-800 text-white font-extrabold text-2xl rounded-2xl shadow-2xl hover:shadow-3xl transform hover:scale-110 transition-all">
-                    Simpan Semua Nilai
-                </button>
-            </div>
-        </form>
-        
-    </div>
+        {{-- TOMBOL --}}
+        <div class="flex flex-col-reverse sm:flex-row sm:justify-between gap-3 mt-6">
+            <a href="{{ route('guru.nilai.pilih-kategori', [$kelas->id, $mapel->id]) }}"
+               class="px-5 py-2.5 border border-gray-200 rounded-xl text-gray-700 font-semibold
+                      text-sm hover:bg-gray-50 hover:border-gray-300 transition
+                      flex items-center justify-center gap-2">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                Kembali
+            </a>
+            <button type="submit"
+                    class="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600
+                           hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl
+                           font-semibold text-sm shadow-sm hover:shadow-md transition
+                           flex items-center justify-center gap-2">
+                <i data-lucide="save" class="w-4 h-4"></i>
+                Simpan semua nilai
+            </button>
+        </div>
 
+    </form>
 </div>
 
 <script>

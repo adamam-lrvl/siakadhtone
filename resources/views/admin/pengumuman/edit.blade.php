@@ -5,10 +5,10 @@
 @section('content')
 <div class="max-w-4xl mx-auto">
 
-    <!-- CARD UTAMA — DNA INDIGO-PURPLE EMPIRE -->
+    <!-- CARD UTAMA -->
     <div class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
 
-        <!-- HEADER GRADIENT -->
+        <!-- HEADER -->
         <div class="bg-gradient-to-r from-indigo-600 to-purple-700 px-6 py-5 text-white">
             <div class="flex items-center gap-4">
                 <div class="bg-white/20 backdrop-blur-sm rounded-xl p-3">
@@ -95,7 +95,7 @@
 
                 </div>
 
-                <!-- TOMBOL — KONSISTEN DENGAN SEMUA FORM -->
+                <!-- TOMBOL -->
                 <div class="mt-8 flex flex-col sm:flex-row-reverse gap-3">
                     <button type="submit"
                             class="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition flex items-center justify-center">
@@ -119,7 +119,7 @@
         selector: '#isi-pengumuman',
         height: 650,
         menubar: true,
-        license_key: 'gpl', // INI YANG BIKIN WARNING KUNING HILANG SELAMANYA
+        license_key: 'gpl', 
         
         plugins: 'image link lists table code media fullscreen preview wordcount emoticons autolink',
         toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image media table | forecolor backcolor emoticons | fullscreen preview code',

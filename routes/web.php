@@ -18,6 +18,10 @@ use App\Http\Controllers\Guru\NilaiController as GuruNilaiController;
 use App\Http\Controllers\Guru\AbsensiController as GuruAbsensiController;
 use App\Http\Controllers\Siswa\CbtController;
 use App\Models\Pengumuman;
+use App\Http\Controllers\KepalaSekolah\DashboardController as KepsekDashboard;
+use App\Http\Controllers\KepalaSekolah\PengumumanController as KepsekPengumuman;
+use App\Http\Controllers\KepalaSekolah\LaporanNilaiController as KepsekLaporan;
+use App\Http\Controllers\KepalaSekolah\ActivityLogController as KepsekActivityLog;
 use Illuminate\Support\Facades\Auth;
 
 // ================== LANDING ==================
@@ -63,7 +67,7 @@ Route::prefix('guru')->name('guru.')->middleware(['auth', 'role:guru'])->group(f
     Route::get('/dashboard', [GuruDashboardController::class, 'index'])->name('dashboard');
     Route::get('/rekap-absensi', [AbsensiController::class, 'rekap'])->name('absensi.rekap');
     Route::get('/jadwal', [GuruDashboardController::class, 'index'])->name('jadwal.index');
-    // ====== ABSENSI (tetap) ======
+    //ABSENSI (tetap)
     Route::get('/absensi', [GuruAbsensiController::class, 'index'])->name('absensi.index');
     Route::get('/absensi/{jadwal}/create', [GuruAbsensiController::class, 'create'])->name('absensi.create');
     Route::post('/absensi/{jadwal}', [GuruAbsensiController::class, 'store'])->name('absensi.store');
@@ -91,8 +95,22 @@ Route::prefix('guru')->name('guru.')->middleware(['auth', 'role:guru'])->group(f
     Route::get('/nilai/{kelas}/{mapel}/rekap/{semester?}', [NilaiController::class, 'show'])
         ->name('nilai.show')
         ->defaults('semester', 1);
-    // Route::get('nilai/{kelas}/{mapel}/edit', [GuruNilaiController::class, 'edit'])->name('nilai.edit');
-    // Route::put('nilai/{kelas}/{mapel}', [GuruNilaiController::class, 'update'])->name('nilai.update');
+
+        // Export semua nilai (dari index)
+    Route::get('/nilai/export/excel', [GuruNilaiController::class, 'exportExcel'])
+        ->name('nilai.export.excel');
+
+    Route::get('/nilai/export/pdf', [GuruNilaiController::class, 'exportPdf'])
+        ->name('nilai.export.pdf');
+
+
+    // Export per kelas + mapel (dipakai di pilih kategori)
+    Route::get('/nilai/{kelas}/{mapel}/export/excel', [GuruNilaiController::class, 'exportExcelKelas'])
+        ->name('nilai.export.excel.kelas');
+
+    Route::get('/nilai/{kelas}/{mapel}/export/pdf', [GuruNilaiController::class, 'exportPdfKelas'])
+        ->name('nilai.export.pdf.kelas');
+
 });
 
 // ================== SISWA ==================
@@ -104,10 +122,44 @@ Route::prefix('siswa')->name('siswa.')->middleware(['auth', 'role:siswa'])->grou
     Route::get('/absensi', [SiswaDashboardController::class, 'absensi'])->name('absensi.index');
     Route::get('/jadwal', [SiswaDashboardController::class, 'jadwal'])->name('jadwal.index');
     Route::get('/pengumuman', [SiswaDashboardController::class, 'pengumuman'])->name('pengumuman.index');
-    //Route::get('/cbt', [CbtController::class, 'index'])->name('cbt');
-    //Route::get('/cbt/{soal}', [CbtController::class, 'kerjakan'])->name('cbt.kerjakan');
-    //Route::post('/cbt/{soal}', [CbtController::class, 'submit'])->name('cbt.submit');
+    Route::get('/absensi/export/excel', [App\Http\Controllers\Siswa\AbsensiController::class, 'exportExcel'])
+         ->name('absensi.export.excel');
+
+    Route::get('/absensi/export/pdf', [App\Http\Controllers\Siswa\AbsensiController::class, 'exportPdf'])
+         ->name('absensi.export.pdf');
+    
+    Route::get('/nilai/export/excel', [SiswaDashboardController::class, 'exportNilaiExcel'])
+         ->name('nilai.export.excel');
+
+    Route::get('/nilai/export/pdf', [SiswaDashboardController::class, 'exportNilaiPdf'])
+         ->name('nilai.export.pdf');
 });
+
+// kepsek
+
+Route::prefix('kepala-sekolah')
+    ->middleware(['auth', 'role:kepala_sekolah'])
+    ->name('kepsek.')
+    ->group(function () {
+        Route::get('dashboard', [KepsekDashboard::class, 'index'])->name('dashboard');
+
+        // Laporan nilai
+        Route::get('laporan-nilai', [KepsekLaporan::class, 'index'])->name('laporan-nilai.index');
+        Route::get('laporan-nilai/{kelas}', [KepsekLaporan::class, 'show'])->name('laporan-nilai.show');
+        Route::get('laporan-nilai/{kelas}/export-excel', [KepsekLaporan::class, 'exportExcel'])->name('laporan-nilai.export-excel');
+        Route::get('laporan-nilai/{kelas}/export-pdf', [KepsekLaporan::class, 'exportPdf'])->name('laporan-nilai.export-pdf');
+
+        // Approval pengumuman
+        Route::get('pengumuman', [KepsekPengumuman::class, 'index'])->name('pengumuman.index');
+        Route::get('pengumuman/{pengumuman}', [KepsekPengumuman::class, 'show'])->name('pengumuman.show');
+        Route::patch('pengumuman/{pengumuman}/approve', [KepsekPengumuman::class, 'approve'])->name('pengumuman.approve');
+        Route::patch('pengumuman/{pengumuman}/reject', [KepsekPengumuman::class, 'reject'])->name('pengumuman.reject');
+
+        // Activity log
+        Route::get('activity-log', [KepsekActivityLog::class, 'index'])->name('activity-log.index');
+        Route::get('activity-log/{id}', [KepsekActivityLog::class, 'show'])->name('activity-log.show');
+        Route::delete('activity-log/{id}', [KepsekActivityLog::class, 'destroy'])->name('activity-log.destroy');
+    });
 
 // ================== PROFILE (ALL ROLES) ==================
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {

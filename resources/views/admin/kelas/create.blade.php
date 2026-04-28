@@ -5,10 +5,10 @@
 @section('content')
 <div class="max-w-2xl mx-auto">
 
-    <!-- CARD UTAMA — SAMA PERSIS KAYAK SISWA & GURU -->
+    <!-- CARD UTAMA -->
     <div class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
 
-        <!-- HEADER INDIGO → PURPLE PREMIUM -->
+        <!-- HEADER -->
         <div class="bg-gradient-to-r from-indigo-600 to-purple-700 px-6 py-5 text-white">
             <div class="flex items-center gap-4">
                 <div class="bg-white/20 backdrop-blur-sm rounded-xl p-3">
@@ -80,7 +80,7 @@
                     </div>
                 </div>
 
-                <!-- TOMBOL — SAMA PERSIS -->
+                <!-- TOMBOL -->
                 <div class="mt-8 flex flex-col sm:flex-row-reverse gap-3">
                     <button type="submit"
                         class="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition">

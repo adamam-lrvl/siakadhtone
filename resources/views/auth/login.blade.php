@@ -1,121 +1,178 @@
 <!DOCTYPE html>
-<html lang="id" class="h-full bg-gray-100">
+<html lang="id" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - SIAKAD HTONE</title>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <link href="https://rsms.me/inter/inter.css" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
-
-    <style>
-        /* ANIMASI HALUS */
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-        .fade-up { animation: fadeInUp .6s ease-out forwards; }
-
-        /* CARD */
-        .card-login {
-            background: #ffffff;
-            border: 1px solid #e5e7eb;
-            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.06);
-        }
-
-        /* BUTTON MORPH HOVER */
-        .btn-morph {
-            transition: all .25s ease;
-        }
-
-        .btn-morph:hover {
-            border-radius: 2rem;     /* MELENGKUNG SAAT HOVER */
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(99,102,241,0.25);
-        }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 
-<body class="min-h-screen flex items-center justify-center px-6">
+<body class="min-h-screen font-['Inter'] antialiased flex">
 
-    <div class="w-full max-w-md fade-up">
+    {{-- PANEL KIRI — BIRU (hidden di HP) --}}
+    <div class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-600 to-indigo-700
+                flex-col items-center justify-center p-12 text-white">
 
-        <!-- Logo Title -->
-        <div class="text-center mb-8">
-            <div class="mx-auto w-20 h-20 rounded-3xl bg-transparant-600 flex items-center justify-center shadow-lg">
-                <img src="{{ asset('loho-sekolah.png') }}" alt="Logo" class="w-full h-full object-cover">
+        <div class="max-w-sm text-center">
+            {{-- LOGO --}}
+            <div class="w-20 h-20 bg-white/15 rounded-3xl flex items-center justify-center mx-auto mb-6 overflow-hidden">
+                <img src="{{ asset('loho-sekolah.png') }}" alt="Logo"
+                     class="w-full h-full object-contain"
+                     onerror="this.style.display='none'; this.parentElement.innerHTML='<span class=\'text-white font-bold text-2xl\'>S</span>'">
             </div>
 
-            <h1 class="mt-4 text-3xl font-extrabold text-gray-900">
-                SIAKAD HTONE
-            </h1>
+            <h1 class="text-3xl font-bold mb-2">SIAKAD HTONE</h1>
+            <p class="text-blue-200 text-sm mb-10">
+                Sistem Informasi Akademik<br>SMK Hang Tuah 1 Jakarta
+            </p>
 
-            <p class="text-gray-500 mt-1 text-sm">Sistem Informasi Akademik SMK HANG TUAH 1 JAKARTA</p>
+            {{-- FITUR --}}
+            <div class="space-y-3 text-left">
+                @foreach([
+                    ['check-square',   'Rekap absensi siswa'],
+                    ['trending-up',    'Monitoring nilai & predikat'],
+                    ['calendar-clock', 'Jadwal pelajaran harian'],
+                    ['megaphone',      'Pengumuman sekolah'],
+                ] as [$icon, $label])
+                <div class="flex items-center gap-3 bg-white/10 rounded-xl px-4 py-3">
+                    <div class="bg-white/20 rounded-lg p-1.5 flex-shrink-0">
+                        <i data-lucide="{{ $icon }}" class="w-4 h-4"></i>
+                    </div>
+                    <span class="text-sm font-medium">{{ $label }}</span>
+                </div>
+                @endforeach
+            </div>
+        </div>
+    </div>
+
+    {{-- PANEL KANAN — FORM --}}
+    <div class="flex-1 flex flex-col items-center justify-center
+                bg-gray-50 px-6 py-12 min-h-screen">
+
+        {{-- LOGO MOBILE --}}
+        <div class="lg:hidden text-center mb-8">
+            <div class="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-3 overflow-hidden">
+                <img src="{{ asset('loho-sekolah.png') }}" alt="Logo"
+                     class="w-full h-full object-contain"
+                     onerror="this.style.display='none'">
+            </div>
+            <p class="font-bold text-gray-900">SIAKAD HTONE</p>
+            <p class="text-xs text-gray-400">SMK Hang Tuah 1 Jakarta</p>
         </div>
 
-        <!-- CARD -->
-        <div class="card-login rounded-2xl p-8 fade-up">
+        <div class="w-full max-w-sm">
 
-            <h2 class="text-2xl font-semibold text-gray-800 text-center mb-6">
-                Masuk ke Akun Anda
-            </h2>
+            {{-- JUDUL --}}
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-900">Masuk ke akun</h2>
+                <p class="text-sm text-gray-400 mt-1">Gunakan email dan password yang terdaftar</p>
+            </div>
 
-            <form method="POST" action="{{ route('login') }}" class="space-y-6">
+            {{-- ERROR --}}
+            @if($errors->any())
+                <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3
+                            rounded-xl flex items-center gap-3 text-sm mb-6">
+                    <i data-lucide="alert-circle" class="w-4 h-4 flex-shrink-0"></i>
+                    {{ $errors->first() }}
+                </div>
+            @endif
+
+            {{-- FORM --}}
+            <form method="POST" action="{{ route('login') }}" class="space-y-4">
                 @csrf
 
-                <!-- Email -->
+                {{-- EMAIL --}}
                 <div>
-                    <label class="text-gray-700 font-medium flex items-center gap-2 mb-2">
-                        <i data-lucide="mail" class="w-4 h-4 text-indigo-500"></i>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1.5">
                         Email
                     </label>
-                    <input type="email" name="email" required
-                        class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-300 text-gray-800
-                        focus:ring-2 focus:ring-indigo-400 focus:bg-white transition"
-                        placeholder="example@gmail.com">
+                    <div class="relative">
+                        <i data-lucide="mail" class="absolute left-3.5 top-1/2 -translate-y-1/2
+                                                      text-gray-400 w-4 h-4"></i>
+                        <input type="email" name="email" value="{{ old('email') }}" required
+                               placeholder="contoh@email.com"
+                               class="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200
+                                      rounded-xl text-sm text-gray-800 focus:outline-none
+                                      focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                                      transition @error('email') border-red-400 bg-red-50 @enderror">
+                    </div>
                 </div>
 
-                <!-- Password -->
+                {{-- PASSWORD --}}
                 <div>
-                    <label class="text-gray-700 font-medium flex items-center gap-2 mb-2">
-                        <i data-lucide="lock" class="w-4 h-4 text-indigo-500"></i>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1.5">
                         Password
                     </label>
-                    <input type="password" name="password" required
-                        class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-300 text-gray-800
-                        focus:ring-2 focus:ring-indigo-400 focus:bg-white transition"
-                        placeholder="••••••••">
+                    <div class="relative">
+                        <i data-lucide="lock" class="absolute left-3.5 top-1/2 -translate-y-1/2
+                                                      text-gray-400 w-4 h-4"></i>
+                        <input type="password" name="password" id="passwordInput" required
+                               placeholder="••••••••"
+                               class="w-full pl-10 pr-10 py-2.5 bg-white border border-gray-200
+                                      rounded-xl text-sm text-gray-800 focus:outline-none
+                                      focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                        <button type="button" id="togglePassword"
+                                class="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400
+                                       hover:text-gray-600 transition">
+                            <i data-lucide="eye" class="w-4 h-4" id="eyeIcon"></i>
+                        </button>
+                    </div>
                 </div>
 
-                <!-- Remember + Forgot -->
-                <div class="flex items-center justify-between text-gray-600 text-sm">
-                    <label class="flex items-center gap-2 cursor-pointer">
-                        <input type="checkbox" name="remember" class="rounded text-indigo-600 border-gray-300">
+                {{-- REMEMBER + FORGOT --}}
+                <div class="flex items-center justify-between">
+                    <label class="flex items-center gap-2 cursor-pointer text-sm text-gray-600">
+                        <input type="checkbox" name="remember"
+                               class="rounded border-gray-300 text-blue-600
+                                      focus:ring-blue-500">
                         Ingat saya
                     </label>
-
-                    <a href="{{ route('password.request') }}" class="text-indigo-600 hover:text-indigo-500 underline">
-                        Lupa password?
-                    </a>
+                    @if(Route::has('password.request'))
+                        <a href="{{ route('password.request') }}"
+                           class="text-xs font-semibold text-blue-600 hover:text-blue-800 transition">
+                            Lupa password?
+                        </a>
+                    @endif
                 </div>
 
-                <!-- Login Button -->
+                {{-- SUBMIT --}}
                 <button type="submit"
-                    class="btn-morph w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 
-                    text-white font-semibold transition-all">
-                    MASUK
+                        class="w-full py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600
+                               hover:from-blue-700 hover:to-indigo-700 text-white font-semibold
+                               rounded-xl text-sm shadow-sm hover:shadow-md transition mt-2">
+                    Masuk
                 </button>
 
             </form>
 
-            <!-- Footer -->
-            <p class="text-center text-gray-400 mt-8 text-sm">
-                © {{ date('Y') }} SIAKAD HTONE — All rights reserved.
+            {{-- FOOTER --}}
+            <p class="text-center text-xs text-gray-400 mt-8">
+                © {{ date('Y') }} SIAKAD HTONE — SMK Hang Tuah 1 Jakarta
             </p>
         </div>
     </div>
 
-    <script> lucide.createIcons(); </script>
 </body>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    lucide.createIcons();
+
+    const toggleBtn   = document.getElementById("togglePassword");
+    const passwordInput = document.getElementById("passwordInput");
+    const eyeIcon     = document.getElementById("eyeIcon");
+
+    let visible = false;
+
+    toggleBtn?.addEventListener("click", () => {
+        visible = !visible;
+        passwordInput.type = visible ? "text" : "password";
+        eyeIcon.setAttribute("data-lucide", visible ? "eye-off" : "eye");
+        lucide.createIcons();
+    });
+});
+</script>
 </html>

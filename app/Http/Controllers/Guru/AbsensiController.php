@@ -197,7 +197,7 @@ public function exportExcel(Jadwal $jadwal)
         $alpa  = $records->where('status', 'A')->count();
 
         // Pertemuan: jumlah hadir siswa / total semester
-        $pertemuan = "$hadir/$totalPertemuan";
+        $pertemuan = "$pertemuanSelesai/$totalPertemuan";
 
         // Belum presensi PER SISWA = total semester - pertemuan selesai
         $belumPresensi = $totalPertemuan - $pertemuanSelesai;
@@ -296,6 +296,11 @@ private function getRekapSiswa($jadwalId)
 {
     $totalPertemuan = 16;
 
+    
+    $pertemuanSelesai = Absensi::where('jadwal_id', $jadwalId)
+        ->distinct('tanggal')
+        ->count('tanggal');
+
     $siswaList = Absensi::with('siswa')
         ->where('jadwal_id', $jadwalId)
         ->get()
@@ -311,7 +316,13 @@ private function getRekapSiswa($jadwalId)
         $sakit = $absensis->where('status', 'S')->count();
         $alpa  = $absensis->where('status', 'A')->count();
 
-        $belum = $totalPertemuan - ($hadir + $izin + $sakit + $alpa);
+        
+        $pertemuan = $pertemuanSelesai . '/' . $totalPertemuan;
+
+        
+        $belum = $totalPertemuan - $pertemuanSelesai;
+
+        
         $persen = $totalPertemuan > 0
             ? round(($hadir / $totalPertemuan) * 100)
             : 0;
@@ -322,7 +333,7 @@ private function getRekapSiswa($jadwalId)
             'no'        => $no++,
             'nis'       => $siswa->nis,
             'nama'      => $siswa->nama,
-            'pertemuan' => ($hadir + $izin + $sakit + $alpa) . '/' . $totalPertemuan,
+            'pertemuan' => $pertemuan,
             'hadir'     => $hadir,
             'izin'      => $izin,
             'sakit'     => $sakit,
@@ -332,7 +343,7 @@ private function getRekapSiswa($jadwalId)
         ];
     }
 
-    return collect($data); 
+    return collect($data);
 }
 
 }

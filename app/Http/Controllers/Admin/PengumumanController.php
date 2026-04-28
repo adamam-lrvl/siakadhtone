@@ -18,7 +18,6 @@ class PengumumanController extends Controller
                         ->latest()
                         ->paginate(10);
 
-        // PAKAI 'pengumumans' — SAMA PERSIS KAYAK DI VIEW!
         return view('admin.pengumuman.index', compact('pengumumans'));
     }
 
@@ -33,14 +32,19 @@ class PengumumanController extends Controller
             'judul'   => 'required|string|max:255',
             'isi'     => 'required',
             'tanggal' => 'required|date',
-            'aktif'   => 'sometimes|boolean',
         ]);
 
-        Pengumuman::create($request->all());
+        Pengumuman::create([
+            'judul'   => $request->judul,
+            'isi'     => $request->isi,
+            'tanggal' => $request->tanggal,
+            'aktif'   => false,       // ← default false dulu
+            'status'  => 'pending',   // ← selalu pending saat dibuat admin
+        ]);
 
         return redirect()
             ->route('admin.pengumuman.index')
-            ->with('success', 'Pengumuman berhasil ditambahkan!');
+            ->with('success', 'Pengumuman berhasil dikirim & menunggu persetujuan kepala sekolah!');
     }
 
     public function show($id)
@@ -51,32 +55,52 @@ class PengumumanController extends Controller
 
     public function edit($id)
     {
-        $pengumuman = Pengumuman::findOrFail($id); // INI YANG WAJIB ADA!!!
+        $pengumuman = Pengumuman::findOrFail($id);
+
+        // Kalau sudah approved, tidak bisa diedit
+        if ($pengumuman->status === 'approved') {
+            return redirect()
+                ->route('admin.pengumuman.index')
+                ->with('error', 'Pengumuman yang sudah disetujui tidak dapat diedit!');
+        }
+
         return view('admin.pengumuman.edit', compact('pengumuman'));
     }
 
     public function update(Request $request, Pengumuman $pengumuman)
     {
+        // Kalau sudah approved, tidak bisa diupdate
+        if ($pengumuman->status === 'approved') {
+            return redirect()
+                ->route('admin.pengumuman.index')
+                ->with('error', 'Pengumuman yang sudah disetujui tidak dapat diubah!');
+        }
+
         $request->validate([
             'judul'   => 'required|string|max:255',
             'isi'     => 'required',
             'tanggal' => 'required|date',
         ]);
 
-        $pengumuman->update($request->all());
+        $pengumuman->update([
+            'judul'   => $request->judul,
+            'isi'     => $request->isi,
+            'tanggal' => $request->tanggal,
+            'status'  => 'pending', // ← reset ke pending kalau diedit ulang
+        ]);
 
         return redirect()
             ->route('admin.pengumuman.index')
-            ->with('success', 'Pengumuman berhasil diperbarui!');
+            ->with('success', 'Pengumuman diperbarui & dikirim ulang untuk persetujuan!');
     }
 
     public function upload(Request $request)
     {
         $request->validate(['file' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:5048']);
 
-        $file = $request->file('file');
+        $file     = $request->file('file');
         $filename = time() . '_' . $file->getClientOriginalName();
-        $path = $file->storeAs('pengumuman', $filename, 'public');
+        $path     = $file->storeAs('pengumuman', $filename, 'public');
 
         return response()->json([
             'location' => asset('storage/pengumuman/' . $filename)

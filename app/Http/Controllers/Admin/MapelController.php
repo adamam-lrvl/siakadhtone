@@ -8,10 +8,15 @@ use App\Models\Mapel;
 
 class MapelController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $mapel = Mapel::paginate(10);
-        return view('admin.mapel.index', compact('mapel')); 
+        $mapel = Mapel::when($request->search, function ($q) use ($request) {
+        $q->where('nama_mapel', 'like', '%' . $request->search . '%')
+        ->orWhere('kode', 'like', '%' . $request->search . '%');
+        })
+        ->paginate(10);
+
+    return view('admin.mapel.index', compact('mapel'));
     }
 
     public function create()

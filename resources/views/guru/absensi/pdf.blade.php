@@ -38,7 +38,7 @@
         }
 
         table.data th {
-            background-color: #1e40af; /* sama kayak Excel */
+            background-color: #1e40af; 
             color: #ffffff;
             border: 1px solid #000;
             padding: 6px;

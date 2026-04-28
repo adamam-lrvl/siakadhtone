@@ -4,7 +4,7 @@
 @section('content')
 <div class="max-w-2xl mx-auto">
 
-    <!-- CARD UTAMA PREMIUM -->
+    <!-- CARD UTAMA -->
     <div class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
 
         <!-- HEADER GRADIENT -->
@@ -71,6 +71,35 @@
                             <p class="text-red-500 text-xs mt-1">{{ $message }}</p> 
                         @enderror
                     </div>
+
+                    <!-- KKM --> 
+                     <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1.5">
+                            KKM
+                        </label>
+                        <input type="number" name="kkm" value="{{ old('kkm', $mapel->kkm ?? 75) }}" min="0" max="100" required
+                            class="w-full px-4 py-2.5 text-sm border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 @error('kkm') border-red-500 @enderror">
+                        @error('kkm') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                    </div>
+
+                    <!-- KATEGORI -->
+                     <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1.5">
+                            Kategori
+                        </label>
+                        <select name="kategori"
+                            class="w-full px-4 py-2.5 text-sm border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 @error('kategori') border-red-500 @enderror"
+                            required>
+                            <option value="wajib" {{ old('kategori') == 'wajib' ? 'selected' : '' }}>
+                                Wajib
+                            </option>
+                            <option value="peminatan" {{ old('kategori') == 'peminatan' ? 'selected' : '' }}>
+                                Peminatan
+                            </option>
+                        </select>
+                        @error('kategori') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                    </div>
+                     
 
                 </div>
 

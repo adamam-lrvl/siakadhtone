@@ -9,13 +9,20 @@ use App\Models\Guru;
 
 class KelasController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $kelas = Kelas::with(['waliKelas'])
-                  ->withCount('siswas')  
-                  ->paginate(10);
+            ->withCount('siswas')
+            ->when($request->search, function ($q) use ($request) {
+                $q->where('nama_kelas', 'like', '%' . $request->search . '%')
+                ->orWhere('kode_kelas', 'like', '%' . $request->search . '%')
+                ->orWhereHas('waliKelas', function ($q) use ($request) {
+                    $q->where('nama', 'like', '%' . $request->search . '%');
+                });
+            })
+            ->paginate(10);
 
-    return view('admin.kelas.index', compact('kelas'));
+        return view('admin.kelas.index', compact('kelas'));
     }
 
     public function create()

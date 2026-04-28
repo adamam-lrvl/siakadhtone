@@ -16,9 +16,28 @@
                     {{ Auth::user()->siswa->nama }} • Kelas {{ Auth::user()->siswa->kelas->nama_kelas ?? 'Belum Ditentukan' }}
                 </p>
             </div>
-            <div class="mt-6 md:mt-0 text-right">
-                <p class="text-sm opacity-90">Total Rekord</p>
-                <p class="text-2xl font-bold">{{ $absensis->total() }}</p>
+
+            <!-- TOTAL RECORD + EXPORT BUTTONS -->
+            <div class="mt-6 md:mt-0 flex flex-col md:flex-row md:items-end gap-4 md:gap-6">
+                <div class="text-right">
+                    <p class="text-sm opacity-90">Total Rekord</p>
+                    <p class="text-2xl font-bold">{{ $absensis->total() }}</p>
+                </div>
+
+                <!-- EXPORT BUTTONS -->
+                <div class="flex gap-3">
+                    <a href="{{ route('siswa.absensi.export.excel') }}" 
+                       class="flex items-center px-6 py-3 bg-white text-indigo-700 font-semibold rounded-xl hover:bg-indigo-100 transition shadow-lg">
+                        <i data-lucide="file-spreadsheet" class="w-5 h-5 mr-2"></i>
+                        Excel
+                    </a>
+
+                    <a href="{{ route('siswa.absensi.export.pdf') }}" 
+                       class="flex items-center px-6 py-3 bg-white text-purple-700 font-semibold rounded-xl hover:bg-purple-100 transition shadow-lg">
+                        <i data-lucide="file-text" class="w-5 h-5 mr-2"></i>
+                        PDF
+                    </a>
+                </div>
             </div>
         </div>
     </div>

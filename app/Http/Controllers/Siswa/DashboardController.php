@@ -9,6 +9,8 @@ use App\Models\Nilai;
 use App\Models\Pengumuman;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
+use Barryvdh\DomPDF\Facade\Pdf as PDF;
 
 class DashboardController extends Controller
 {
@@ -36,7 +38,8 @@ class DashboardController extends Controller
         ->orderBy('updated_at', 'desc')
         ->get();
 
-    $pengumuman = Pengumuman::latest()->get();
+    $pengumuman = Pengumuman::published()->latest()->get();
+
 
     return view('siswa.dashboard', compact(
     'jadwalsHariIni',   // UBAH JADI INI (ADA "S")
@@ -78,7 +81,7 @@ class DashboardController extends Controller
 
     public function pengumuman()
     {
-        $pengumuman = Pengumuman::latest()->paginate(10);
+        $pengumuman = Pengumuman::published()->latest()->paginate(10);
         return view('siswa.pengumuman.index', compact('pengumuman'));
     }
 
@@ -124,4 +127,106 @@ public function rekap()
 
     return view('siswa.nilai.index', compact('rekapNilai'));
 }
+
+        /**
+     * Export Rekap Nilai ke Excel
+     */
+    public function exportNilaiExcel()
+    {
+        $siswa = Auth::user()->siswa;
+
+        $nilais = Nilai::where('siswa_id', $siswa->id)
+            ->with('mapel')
+            ->get();
+
+        $rekapNilai = $nilais->groupBy('mapel_id')->map(function ($group) {
+            $mapel = $group->first()->mapel;
+
+            $tugas = $group->filter(fn($n) => str_starts_with($n->kategori, 'tugas_'))->avg('nilai');
+            $uts   = $group->where('kategori', 'uts')->avg('nilai');
+            $uas   = $group->where('kategori', 'uas')->avg('nilai');
+
+            $rataRata = $group->avg('nilai');
+
+            $predikat = $rataRata >= 81 ? 'A' :
+                        ($rataRata >= 70 ? 'B' :
+                        ($rataRata >= 60 ? 'C' :
+                        ($rataRata >= 50 ? 'D' : 'E')));
+
+            return [
+                'Mata Pelajaran' => $mapel->nama_mapel ?? '-',
+                'Semester'       => $group->first()->semester ?? 1,
+                'Tugas'          => $tugas ? number_format($tugas, 2) : '-',
+                'UTS'            => $uts   ? number_format($uts, 2)   : '-',
+                'UAS'            => $uas   ? number_format($uas, 2)   : '-',
+                'Rata-rata'      => number_format($rataRata, 2),
+                'Predikat'       => $predikat,
+            ];
+        })->values();
+
+        return Excel::download(new class($rekapNilai) implements 
+            \Maatwebsite\Excel\Concerns\FromCollection,
+            \Maatwebsite\Excel\Concerns\WithHeadings 
+        {
+            protected $data;
+
+            public function __construct($data)
+            {
+                $this->data = $data;
+            }
+
+            public function collection()
+            {
+                return collect($this->data);
+            }
+
+            public function headings(): array
+            {
+                return ['Mata Pelajaran', 'Semester', 'Tugas', 'UTS', 'UAS', 'Rata-rata', 'Predikat'];
+            }
+        }, 'Rekap_Nilai_Saya_' . date('Ymd_His') . '.xlsx');
+    }
+
+    /**
+     * Export Rekap Nilai ke PDF
+     */
+    public function exportNilaiPdf()
+    {
+        $siswa = Auth::user()->siswa;
+
+        $nilais = Nilai::where('siswa_id', $siswa->id)
+            ->with('mapel')
+            ->get();
+
+        $rekapNilai = $nilais->groupBy('mapel_id')->map(function ($group) {
+            $mapel = $group->first()->mapel;
+
+            $tugas = $group->filter(fn($n) => str_starts_with($n->kategori, 'tugas_'))->avg('nilai');
+            $uts   = $group->where('kategori', 'uts')->avg('nilai');
+            $uas   = $group->where('kategori', 'uas')->avg('nilai');
+
+            $rataRata = $group->avg('nilai');
+
+            $predikat = $rataRata >= 81 ? 'A' :
+                        ($rataRata >= 70 ? 'B' :
+                        ($rataRata >= 60 ? 'C' :
+                        ($rataRata >= 50 ? 'D' : 'E')));
+
+            return (object) [
+                'mapel'     => $mapel,
+                'semester'  => $group->first()->semester ?? 1,
+                'tugas'     => $tugas ? number_format($tugas, 2) : '-',
+                'uts'       => $uts   ? number_format($uts, 2)   : '-',
+                'uas'       => $uas   ? number_format($uas, 2)   : '-',
+                'rata_rata' => number_format($rataRata, 2),
+                'predikat'  => $predikat,
+            ];
+        })->values();
+
+        $pdf = PDF::loadView('siswa.nilai.export-pdf', compact('rekapNilai', 'siswa'))
+                  ->setPaper('A4', 'landscape');
+
+        return $pdf->download('Rekap_Nilai_Saya_' . date('Ymd_His') . '.pdf');
+    }
+
 }

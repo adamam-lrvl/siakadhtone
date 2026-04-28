@@ -11,12 +11,23 @@ use Illuminate\Http\Request;
 
 class JadwalController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $jadwals = Jadwal::with(['kelas', 'mapel', 'guru'])
+        $query = Jadwal::with(['kelas', 'mapel', 'guru'])
             ->orderByRaw("FIELD(hari, 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu')")
-            ->orderBy('jam_mulai', 'asc')
-            ->get();
+            ->orderBy('jam_mulai', 'asc');
+
+        // SEARCH — filter sebelum grouping
+        if ($request->search) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('kelas', fn($q) => $q->where('nama_kelas', 'like', '%' . $search . '%'))
+                ->orWhereHas('mapel', fn($q) => $q->where('nama_mapel', 'like', '%' . $search . '%'))
+                ->orWhereHas('guru', fn($q) => $q->where('nama', 'like', '%' . $search . '%'));
+            });
+        }
+
+        $jadwals = $query->get();
 
         // GROUPING: Mapel + Kelas + Guru = satu grup
         $grouped = $jadwals->groupBy(function ($item) {
@@ -30,9 +41,10 @@ class JadwalController extends Controller
 
             $hariJam = $group->map(function ($j) {
                 return [
-                    'id'   => $j->id, // ID per baris jadwal
+                    'id'   => $j->id,
                     'hari' => $j->hari,
-                    'jam'  => \Carbon\Carbon::parse($j->jam_mulai)->format('H:i') . ' - ' . \Carbon\Carbon::parse($j->jam_selesai)->format('H:i'),
+                    'jam'  => \Carbon\Carbon::parse($j->jam_mulai)->format('H:i') . ' - ' .
+                            \Carbon\Carbon::parse($j->jam_selesai)->format('H:i'),
                 ];
             })->sortBy(function ($item) {
                 $days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
@@ -40,17 +52,17 @@ class JadwalController extends Controller
             })->values();
 
             $jadwalGrouped->push([
-                'id'        => $first->id, // ID representasi grup (buat edit/delete)
-                'kelas'     => $first->kelas,
-                'mapel'     => $first->mapel,
-                'guru'      => $first->guru,
-                'hari_jam'  => $hariJam,
+                'id'       => $first->id,
+                'kelas'    => $first->kelas,
+                'mapel'    => $first->mapel,
+                'guru'     => $first->guru,
+                'hari_jam' => $hariJam,
             ]);
         }
 
         // PAGINATION MANUAL
-        $perPage = 10;
-        $currentPage = request()->get('page', 1);
+        $perPage     = 10;
+        $currentPage = $request->get('page', 1);
         $currentItems = $jadwalGrouped->slice(($currentPage - 1) * $perPage, $perPage);
 
         $jadwal = new \Illuminate\Pagination\LengthAwarePaginator(
@@ -58,7 +70,10 @@ class JadwalController extends Controller
             $jadwalGrouped->count(),
             $perPage,
             $currentPage,
-            ['path' => request()->url(), 'query' => request()->query()]
+            [
+                'path'  => $request->url(),
+                'query' => $request->query(), // ← ini penting biar search ikut di pagination
+            ]
         );
 
         return view('admin.jadwal.index', compact('jadwal'));

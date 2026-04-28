@@ -26,12 +26,19 @@ class AuthenticatedSessionController extends Controller
     public function store(LoginRequest $request): RedirectResponse
     {
         $request->authenticate();
-
         $request->session()->regenerate();
 
-        // LANGSUNG KE GATEWAY DASHBOARD
-        return Redirect::to('/dashboard');
+        // ← GANTI BAGIAN INI
+        $user = Auth::user();
+
+        return match($user->role) {
+            'admin'          => redirect('/admin/dashboard'),
+            'guru'           => redirect('/guru/dashboard'),
+            'kepala_sekolah' => redirect('/kepala-sekolah/dashboard'),
+            default          => redirect('/siswa/dashboard'),
+        };
     }
+
 
     /**
      * Destroy an authenticated session.

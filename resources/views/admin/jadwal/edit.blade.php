@@ -8,7 +8,7 @@
     <!-- CARD UTAMA -->
     <div class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
 
-        <!-- HEADER GRADIENT -->
+        <!-- HEADER -->
         <div class="bg-gradient-to-r from-indigo-600 to-purple-700 px-6 py-5 text-white">
             <div class="flex items-center gap-4">
                 <div class="bg-white/20 backdrop-blur-sm rounded-xl p-3">
