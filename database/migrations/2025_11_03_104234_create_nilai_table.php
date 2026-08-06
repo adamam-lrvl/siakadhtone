@@ -17,7 +17,7 @@ return new class extends Migration
                   ->constrained('siswa')
                   ->cascadeOnDelete();
             $table->foreignId('mapel_id')
-                  ->constrained('mapel')
+                  ->constrained('mapels')
                   ->cascadeOnDelete();
             $table->decimal('nilai', 5, 2);
             $table->enum('semester', ['1','2']);
