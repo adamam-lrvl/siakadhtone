@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('telepon', 20)->nullable();
             $table->foreignId('mapel_id')
                 ->nullable()
-                ->constrained('mapel')
+                ->constrained('mapels')
                 ->nullOnDelete();
             $table->timestamps();
         });
