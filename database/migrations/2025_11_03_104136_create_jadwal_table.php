@@ -20,7 +20,7 @@ return new class extends Migration
                   ->constrained('mapels')
                   ->cascadeOnDelete();
             $table->foreignId('guru_id')
-                  ->constrained('guru')
+                  ->constrained('gurus')
                   ->cascadeOnDelete();
             $table->enum('hari', ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu']);
             $table->time('jam_mulai');
