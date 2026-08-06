@@ -11,10 +11,26 @@ use Illuminate\Support\Facades\Hash;
 
 class GuruController extends Controller
 {
-    public function index()
+public function index(Request $request)
     {
-        // EAGER LOAD MAPELS (MANY-TO-MANY)
-        $gurus = Guru::with(['user', 'mapels'])->paginate(15);
+        $query = Guru::with(['user', 'mapels']);
+
+        // SEARCH
+        if ($request->filled('search')) {
+            $search = $request->search;
+
+            $query->where(function ($q) use ($search) {
+                $q->where('nip', 'like', "%{$search}%")
+                ->orWhere('nama', 'like', "%{$search}%")
+                ->orWhere('email', 'like', "%{$search}%")
+                ->orWhereHas('mapels', function ($q2) use ($search) {
+                    $q2->where('nama_mapel', 'like', "%{$search}%");
+                });
+            });
+        }
+
+        $gurus = $query->latest()->paginate(15);
+
         return view('admin.guru.index', compact('gurus'));
     }
 

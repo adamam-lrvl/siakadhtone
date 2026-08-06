@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use App\Models\Pengumuman;
 
 class PengumumanController extends Controller
@@ -12,8 +13,8 @@ class PengumumanController extends Controller
     {
         $search = $request->get('search');
 
-        $pengumumans = Pengumuman::when($search, function($query) use ($search) {
-                            $query->where('judul', 'like', '%'.$search.'%');
+        $pengumumans = Pengumuman::when($search, function ($query) use ($search) {
+                            $query->where('judul', 'like', '%' . $search . '%');
                         })
                         ->latest()
                         ->paginate(10);
@@ -32,15 +33,22 @@ class PengumumanController extends Controller
             'judul'   => 'required|string|max:255',
             'isi'     => 'required',
             'tanggal' => 'required|date',
+            'gambar'  => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
-        Pengumuman::create([
+        $data = [
             'judul'   => $request->judul,
             'isi'     => $request->isi,
             'tanggal' => $request->tanggal,
-            'aktif'   => false,       // ← default false dulu
-            'status'  => 'pending',   // ← selalu pending saat dibuat admin
-        ]);
+            'aktif'   => false,
+            'status'  => 'pending',
+        ];
+
+        if ($request->hasFile('gambar')) {
+            $data['gambar'] = $request->file('gambar')->store('pengumuman/thumbnail', 'public');
+        }
+
+        Pengumuman::create($data);
 
         return redirect()
             ->route('admin.pengumuman.index')
@@ -57,7 +65,6 @@ class PengumumanController extends Controller
     {
         $pengumuman = Pengumuman::findOrFail($id);
 
-        // Kalau sudah approved, tidak bisa diedit
         if ($pengumuman->status === 'approved') {
             return redirect()
                 ->route('admin.pengumuman.index')
@@ -69,7 +76,6 @@ class PengumumanController extends Controller
 
     public function update(Request $request, Pengumuman $pengumuman)
     {
-        // Kalau sudah approved, tidak bisa diupdate
         if ($pengumuman->status === 'approved') {
             return redirect()
                 ->route('admin.pengumuman.index')
@@ -80,23 +86,46 @@ class PengumumanController extends Controller
             'judul'   => 'required|string|max:255',
             'isi'     => 'required',
             'tanggal' => 'required|date',
+            'gambar'  => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
-        $pengumuman->update([
+        $data = [
             'judul'   => $request->judul,
             'isi'     => $request->isi,
             'tanggal' => $request->tanggal,
-            'status'  => 'pending', // ← reset ke pending kalau diedit ulang
-        ]);
+            'status'  => 'pending',
+        ];
+
+        // Upload gambar baru
+        if ($request->hasFile('gambar')) {
+            // Hapus gambar lama kalau ada
+            if ($pengumuman->gambar) {
+                Storage::disk('public')->delete($pengumuman->gambar);
+            }
+            $data['gambar'] = $request->file('gambar')->store('pengumuman/thumbnail', 'public');
+        }
+
+        // Hapus gambar tanpa upload baru
+        if ($request->hapus_gambar == '1' && !$request->hasFile('gambar')) {
+            if ($pengumuman->gambar) {
+                Storage::disk('public')->delete($pengumuman->gambar);
+            }
+            $data['gambar'] = null;
+        }
+
+        $pengumuman->update($data);
 
         return redirect()
             ->route('admin.pengumuman.index')
             ->with('success', 'Pengumuman diperbarui & dikirim ulang untuk persetujuan!');
     }
 
+    // Upload gambar dari TinyMCE editor
     public function upload(Request $request)
     {
-        $request->validate(['file' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:5048']);
+        $request->validate([
+            'file' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:5048'
+        ]);
 
         $file     = $request->file('file');
         $filename = time() . '_' . $file->getClientOriginalName();
@@ -109,7 +138,13 @@ class PengumumanController extends Controller
 
     public function destroy(Pengumuman $pengumuman)
     {
+        // Hapus file gambar dari storage kalau ada
+        if ($pengumuman->gambar) {
+            Storage::disk('public')->delete($pengumuman->gambar);
+        }
+
         $pengumuman->delete();
+
         return back()->with('success', 'Pengumuman berhasil dihapus!');
     }
 }

@@ -1,107 +1,125 @@
 {{-- resources/views/guru/nilai/show.blade.php --}}
 @extends('guru.layouts.app')
-@section('title', 'Rekap Nilai Siswa • ' . $mapel->nama_mapel)
+@section('title', 'Rekap Nilai • ' . $mapel->nama_mapel)
 
 @section('content')
-<div class="max-w-7xl mx-auto space-y-8 px-4">
+<div class="max-w-7xl mx-auto py-6 space-y-6">
 
-    <!-- HEADER INDIGO-PURPLE + EXPORT BUTTONS (sama persis style Rekap Nilai Siswa) -->
-    <div class="bg-gradient-to-r from-indigo-600 to-purple-700 rounded-3xl p-8 text-white shadow-2xl">
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-            <div>
-                <h1 class="text-3xl md:text-4xl font-bold">Rekap Nilai Siswa</h1>
-                <p class="text-indigo-100 text-xl mt-2">
-                    {{ $mapel->nama_mapel }} • {{ $kelas->nama_kelas }} • Semester {{ $semester }}
-                </p>
+    {{-- HERO --}}
+    <div class="relative rounded-2xl overflow-hidden
+                bg-gradient-to-br from-blue-700 via-blue-600 to-indigo-700
+                dark:bg-none dark:bg-white/[0.06] dark:backdrop-blur-3xl
+                dark:border dark:border-white/[0.09]
+                dark:shadow-[0_0_40px_rgba(99,102,241,0.12),inset_0_1px_0_rgba(255,255,255,0.10)]">
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,255,255,0.12),transparent_60%)] dark:opacity-20 pointer-events-none"></div>
+        <div class="relative p-6 flex items-start justify-between gap-4">
+            <div class="min-w-0">
+                <h1 class="text-2xl font-extrabold text-white dark:text-white/90 flex items-center gap-2 tracking-tight">
+                    <i data-lucide="trending-up" class="w-6 h-6 flex-shrink-0"></i>
+                    Rekap nilai siswa
+                </h1>
+                <div class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-sm text-blue-200 dark:text-white/40">
+                    <span class="flex items-center gap-1">
+                        <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
+                        {{ $mapel->nama_mapel }}
+                    </span>
+                    <span>·</span>
+                    <span class="flex items-center gap-1">
+                        <i data-lucide="users" class="w-3.5 h-3.5"></i>
+                        {{ $kelas->nama_kelas }}
+                    </span>
+                    <span>·</span>
+                    <span class="flex items-center gap-1">
+                        <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+                        Semester {{ $semester }} ({{ $semester == 1 ? 'Ganjil' : 'Genap' }})
+                    </span>
+                </div>
             </div>
-
-            <!-- EXPORT BUTTONS DI HEADER -->
-            <div class="flex flex-wrap gap-3">
+            <div class="flex gap-2 flex-shrink-0 z-10">
                 <a href="{{ route('guru.nilai.export.excel', [$kelas->id, $mapel->id, $semester]) }}"
-                   class="flex items-center px-7 py-4 bg-white text-indigo-700 font-semibold rounded-2xl hover:bg-indigo-100 transition shadow-lg">
-                    <i data-lucide="file-spreadsheet" class="w-5 h-5 mr-2"></i>
-                    Export Excel
+                   class="flex items-center gap-1.5 px-3 py-2 bg-white/15 hover:bg-white/25
+                          border border-white/20 text-white text-xs font-semibold rounded-xl transition">
+                    <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+                    <span class="hidden sm:inline">Excel</span>
                 </a>
-
                 <a href="{{ route('guru.nilai.export.pdf', [$kelas->id, $mapel->id, $semester]) }}"
-                   class="flex items-center px-7 py-4 bg-white text-purple-700 font-semibold rounded-2xl hover:bg-purple-100 transition shadow-lg">
-                    <i data-lucide="file-text" class="w-5 h-5 mr-2"></i>
-                    Export PDF
+                   class="flex items-center gap-1.5 px-3 py-2 bg-white/15 hover:bg-white/25
+                          border border-white/20 text-white text-xs font-semibold rounded-xl transition">
+                    <i data-lucide="file-text" class="w-4 h-4"></i>
+                    <span class="hidden sm:inline">PDF</span>
                 </a>
             </div>
         </div>
     </div>
 
-    <!-- TABEL REKAP NILAI (card besar & lega) -->
-    <div class="bg-white rounded-3xl shadow-xl border border-indigo-100 overflow-hidden">
+    {{-- TABEL REKAP --}}
+    <div class="bg-white dark:bg-white/[0.05] dark:backdrop-blur-xl
+                rounded-2xl border border-gray-200 dark:border-white/[0.07] overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-sm">
-                <thead class="bg-gradient-to-r from-indigo-600 to-purple-700 text-white">
-                    <tr>
-                        <th class="px-6 py-5 text-left font-bold">No</th>
-                        <th class="px-6 py-5 text-left font-bold">Nama Siswa</th>
-                        <th class="px-6 py-5 text-center font-bold">NIS</th>
-                        <th class="px-6 py-5 text-center font-bold">Tugas 1</th>
-                        <th class="px-6 py-5 text-center font-bold">Tugas 2</th>
-                        <th class="px-6 py-5 text-center font-bold">Tugas 3</th>
-                        <th class="px-6 py-5 text-center font-bold">Tugas 4</th>
-                        <th class="px-6 py-5 text-center font-bold">Tugas 5</th>
-                        <th class="px-6 py-5 text-center font-bold">Tugas 6</th>
-                        <th class="px-6 py-5 text-center font-bold">UTS</th>
-                        <th class="px-6 py-5 text-center font-bold">UAS</th>
-                        <th class="px-6 py-5 text-center font-bold text-lg">Rata-rata</th>
-                        <th class="px-6 py-5 text-center font-bold text-lg">Predikat</th>
+                <thead>
+                    <tr class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
+                        <th class="px-4 py-3.5 text-center font-semibold w-10">No</th>
+                        <th class="px-4 py-3.5 text-left font-semibold">Nama Siswa</th>
+                        <th class="px-4 py-3.5 text-center font-semibold w-24">NIS</th>
+                        <th class="px-3 py-3.5 text-center font-semibold w-16">Tgs 1</th>
+                        <th class="px-3 py-3.5 text-center font-semibold w-16">Tgs 2</th>
+                        <th class="px-3 py-3.5 text-center font-semibold w-16">Tgs 3</th>
+                        <th class="px-3 py-3.5 text-center font-semibold w-16">Tgs 4</th>
+                        <th class="px-3 py-3.5 text-center font-semibold w-16">Tgs 5</th>
+                        <th class="px-3 py-3.5 text-center font-semibold w-16">Tgs 6</th>
+                        <th class="px-3 py-3.5 text-center font-semibold w-16">UTS</th>
+                        <th class="px-3 py-3.5 text-center font-semibold w-16">UAS</th>
+                        <th class="px-4 py-3.5 text-center font-semibold w-24">Rata-rata</th>
+                        <th class="px-4 py-3.5 text-center font-semibold w-24">Predikat</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-indigo-100">
+                <tbody class="divide-y divide-gray-100 dark:divide-white/[0.05]">
                     @forelse($rekapSiswa as $index => $r)
-                    <tr class="hover:bg-indigo-50 transition">
-                        <td class="px-6 py-5 text-center font-medium">{{ $index + 1 }}</td>
-                        <td class="px-6 py-5 font-semibold text-indigo-900">{{ $r['siswa']->nama }}</td>
-                        <td class="px-6 py-5 text-center text-gray-600">{{ $r['siswa']->nis }}</td>
-                        <td class="px-6 py-5 text-center {{ $r['nilai']['tugas_1'] ? 'text-green-700 font-bold' : 'text-gray-400' }}">
-                            {{ $r['nilai']['tugas_1'] ?? '-' }}
+                    @php
+                        $nilaiColor = fn($v) => $v ? 'text-emerald-700 dark:text-emerald-400 font-bold' : 'text-gray-300 dark:text-white/20';
+                        $badge = match($r['predikat']) {
+                            'A' => 'bg-emerald-500',
+                            'B' => 'bg-blue-500',
+                            'C' => 'bg-amber-500',
+                            'D' => 'bg-orange-500',
+                            default => 'bg-red-500',
+                        };
+                    @endphp
+                    <tr class="hover:bg-indigo-50/30 dark:hover:bg-white/[0.04] transition
+                               {{ $loop->even ? 'bg-gray-50/50 dark:bg-white/[0.02]' : '' }}">
+                        <td class="px-4 py-4 text-center text-gray-400 dark:text-white/30 text-xs">{{ $index + 1 }}</td>
+                        <td class="px-4 py-4 font-semibold text-gray-900 dark:text-white/90">{{ $r['siswa']->nama }}</td>
+                        <td class="px-4 py-4 text-center">
+                            <code class="bg-gray-100 dark:bg-white/[0.07] text-gray-600 dark:text-white/50 px-2 py-0.5 rounded text-xs">{{ $r['siswa']->nis }}</code>
                         </td>
-                        <td class="px-6 py-5 text-center {{ $r['nilai']['tugas_2'] ? 'text-green-700 font-bold' : 'text-gray-400' }}">
-                            {{ $r['nilai']['tugas_2'] ?? '-' }}
+                        @foreach(['tugas_1','tugas_2','tugas_3','tugas_4','tugas_5','tugas_6'] as $t)
+                        <td class="px-3 py-4 text-center text-xs {{ $nilaiColor($r['nilai'][$t] ?? null) }}">
+                            {{ $r['nilai'][$t] ?? '-' }}
                         </td>
-                        <td class="px-6 py-5 text-center {{ $r['nilai']['tugas_3'] ? 'text-green-700 font-bold' : 'text-gray-400' }}">
-                            {{ $r['nilai']['tugas_3'] ?? '-' }}
-                        </td>
-                        <td class="px-6 py-5 text-center {{ $r['nilai']['tugas_4'] ? 'text-green-700 font-bold' : 'text-gray-400' }}">
-                            {{ $r['nilai']['tugas_4'] ?? '-' }}
-                        </td>
-                        <td class="px-6 py-5 text-center {{ $r['nilai']['tugas_5'] ? 'text-green-700 font-bold' : 'text-gray-400' }}">
-                            {{ $r['nilai']['tugas_5'] ?? '-' }}
-                        </td>
-                        <td class="px-6 py-5 text-center {{ $r['nilai']['tugas_6'] ? 'text-green-700 font-bold' : 'text-gray-400' }}">
-                            {{ $r['nilai']['tugas_6'] ?? '-' }}
-                        </td>
-                        <td class="px-6 py-5 text-center {{ $r['nilai']['uts'] ? 'text-blue-700 font-bold' : 'text-gray-400' }}">
+                        @endforeach
+                        <td class="px-3 py-4 text-center text-xs {{ $r['nilai']['uts'] ?? false ? 'text-blue-700 dark:text-blue-400 font-bold' : 'text-gray-300 dark:text-white/20' }}">
                             {{ $r['nilai']['uts'] ?? '-' }}
                         </td>
-                        <td class="px-6 py-5 text-center {{ $r['nilai']['uas'] ? 'text-purple-700 font-bold' : 'text-gray-400' }}">
+                        <td class="px-3 py-4 text-center text-xs {{ $r['nilai']['uas'] ?? false ? 'text-indigo-700 dark:text-indigo-400 font-bold' : 'text-gray-300 dark:text-white/20' }}">
                             {{ $r['nilai']['uas'] ?? '-' }}
                         </td>
-                        <td class="px-6 py-5 text-center text-2xl font-extrabold text-indigo-900">
+                        <td class="px-4 py-4 text-center text-xl font-extrabold text-gray-900 dark:text-white/90">
                             {{ $r['rata_rata'] }}
                         </td>
-                        <td class="px-6 py-5 text-center">
-                            <span class="px-6 py-3 rounded-2xl text-white font-bold text-xl shadow-lg
-                                {{ $r['predikat'] == 'A' ? 'bg-green-600' : '' }}
-                                {{ $r['predikat'] == 'B' ? 'bg-blue-600' : '' }}
-                                {{ $r['predikat'] == 'C' ? 'bg-yellow-600' : '' }}
-                                {{ $r['predikat'] == 'D' ? 'bg-orange-600' : '' }}
-                                {{ $r['predikat'] == 'E' ? 'bg-red-600' : '' }}">
+                        <td class="px-4 py-4 text-center">
+                            <span class="inline-flex items-center justify-center w-9 h-9 rounded-xl text-white font-extrabold text-sm shadow-sm {{ $badge }}">
                                 {{ $r['predikat'] }}
                             </span>
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="13" class="text-center py-20 text-gray-500">
-                            <i data-lucide="users" class="w-24 h-24 mx-auto mb-6 text-gray-300"></i>
-                            <p class="text-xl font-medium">Belum ada data siswa atau nilai</p>
+                        <td colspan="13" class="text-center py-16">
+                            <div class="bg-gray-50 dark:bg-white/[0.04] rounded-full w-14 h-14 flex items-center justify-center mx-auto mb-3">
+                                <i data-lucide="users" class="w-7 h-7 text-gray-300 dark:text-white/20"></i>
+                            </div>
+                            <p class="text-sm font-medium text-gray-400 dark:text-white/30">Belum ada data siswa atau nilai</p>
                         </td>
                     </tr>
                     @endforelse
@@ -110,20 +128,15 @@
         </div>
     </div>
 
-    <!-- TOMBOL KEMBALI -->
-    <div class="text-center pt-6">
+    <div class="flex justify-start">
         <a href="{{ route('guru.nilai.index') }}"
-           class="inline-flex items-center gap-3 px-10 py-4 bg-gradient-to-r from-indigo-600 to-purple-700 hover:from-indigo-700 hover:to-purple-800 text-white font-semibold rounded-3xl shadow-xl hover:shadow-2xl transition">
-            <i data-lucide="arrow-left" class="w-5 h-5"></i>
-            Kembali ke Daftar Mata Pelajaran
+           class="inline-flex items-center gap-2 px-5 py-2.5
+                  border-2 border-gray-200 dark:border-white/[0.10] rounded-xl
+                  text-gray-600 dark:text-white/50 font-semibold text-sm
+                  hover:bg-gray-50 dark:hover:bg-white/[0.07] transition">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            Kembali ke daftar mata pelajaran
         </a>
     </div>
-
 </div>
-
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        lucide.createIcons();
-    });
-</script>
 @endsection

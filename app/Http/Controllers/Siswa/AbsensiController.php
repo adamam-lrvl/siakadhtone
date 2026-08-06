@@ -13,80 +13,102 @@ class AbsensiController extends Controller
 {
     public function index()
     {
-        $siswa = Auth::user()->siswa;
+        $siswa          = Auth::user()->siswa;
+        $totalPertemuan = 16;
 
         $absensis = Absensi::where('siswa_id', $siswa->id)
-            ->with('jadwal.mapel', 'jadwal.guru')
-            ->orderBy('tanggal', 'desc')
-            ->orderBy('jam_masuk', 'desc')
-            ->paginate(20);
+            ->with(['jadwal.mapel', 'jadwal.guru'])
+            ->get()
+            ->groupBy(fn($item) => $item->jadwal->mapel_id);
 
-        return view('siswa.absensi.index', compact('absensis'));
-    }
+        // Hitung rekap per mapel
+        $rekapMapel = $absensis->map(function ($records) use ($totalPertemuan) {
+            $mapel            = $records->first()->jadwal->mapel;
+            $guru             = $records->first()->jadwal->guru;
+            $pertemuanSelesai = $records->pluck('tanggal')->unique()->count();
 
-    /**
-     * Export Absensi Siswa ke Excel
-     */
-public function exportExcel()
-{
-    $siswa          = Auth::user()->siswa;
-    $totalPertemuan = 16;
+            $H = $records->where('status', 'H')->count();
+            $I = $records->where('status', 'I')->count();
+            $S = $records->where('status', 'S')->count();
+            $A = $records->where('status', 'A')->count();
 
-    $absensis = Absensi::where('siswa_id', $siswa->id)
-        ->with(['jadwal.mapel', 'jadwal.guru'])
-        ->get()
-        // 🔥 GROUP BY MAPEL, BUKAN JADWAL
-        ->groupBy(fn($item) => $item->jadwal->mapel_id);
+            return [
+                'mapel'            => $mapel,
+                'guru'             => $guru,
+                'pertemuanSelesai' => $pertemuanSelesai,
+                'H'                => $H,
+                'I'                => $I,
+                'S'                => $S,
+                'A'                => $A,
+                'belum'            => $totalPertemuan - $pertemuanSelesai,
+                'persen'           => $totalPertemuan > 0
+                    ? round(($H / $totalPertemuan) * 100, 1)
+                    : 0,
+            ];
+        })->values();
 
-    $exportData = [];
-    $no = 1;
-
-    foreach ($absensis as $records) {
-        $mapel = $records->first()->jadwal->mapel;
-
-        // 🔥 HITUNG PERTEMUAN DARI TANGGAL UNIK
-        $pertemuanSelesai = $records
-            ->pluck('tanggal')
-            ->unique()
-            ->count();
-
-        $hadir = $records->where('status', 'H')->count();
-        $izin  = $records->where('status', 'I')->count();
-        $sakit = $records->where('status', 'S')->count();
-        $alpa  = $records->where('status', 'A')->count();
-
-        // ✅ INI YANG BENER
-        $pertemuan = $pertemuanSelesai . '/' . $totalPertemuan;
-
-        $belum = $totalPertemuan - $pertemuanSelesai;
-
-        $persenHadir = $totalPertemuan > 0
-            ? round(($hadir / $totalPertemuan) * 100)
-            : 0;
-
-        $exportData[] = [
-            'No'             => $no++,
-            'NIS'            => $siswa->nis,
-            'Mata Pelajaran' => $mapel->nama_mapel ?? '-',
-            'Pertemuan'      => $pertemuan,
-            'Hadir'          => $hadir,
-            'Izin'           => $izin,
-            'Sakit'          => $sakit,
-            'Alpa'           => $alpa,
-            'Belum Presensi' => $belum,
-            'Hadir (%)'      => $persenHadir . '%',
+        // Summary total
+        $summary = [
+            'H' => $rekapMapel->sum('H'),
+            'I' => $rekapMapel->sum('I'),
+            'S' => $rekapMapel->sum('S'),
+            'A' => $rekapMapel->sum('A'),
         ];
+
+        return view('siswa.absensi.index', compact(
+            'rekapMapel',
+            'summary',
+            'totalPertemuan',
+            'siswa'
+        ));
     }
 
-    return Excel::download(
-        new AbsensiSiswaExport($exportData, $siswa),
-        'Rekap_Absensi_Saya_' . date('Ymd_His') . '.xlsx'
-    );
-}
+    public function exportExcel()
+    {
+        $siswa          = Auth::user()->siswa;
+        $totalPertemuan = 16;
 
-    /**
-     * Export Absensi Siswa ke PDF
-     */
+        $absensis = Absensi::where('siswa_id', $siswa->id)
+            ->with(['jadwal.mapel', 'jadwal.guru'])
+            ->get()
+            ->groupBy(fn($item) => $item->jadwal->mapel_id);
+
+        $exportData = [];
+        $no = 1;
+
+        foreach ($absensis as $records) {
+            $mapel            = $records->first()->jadwal->mapel;
+            $pertemuanSelesai = $records->pluck('tanggal')->unique()->count();
+
+            $hadir = $records->where('status', 'H')->count();
+            $izin  = $records->where('status', 'I')->count();
+            $sakit = $records->where('status', 'S')->count();
+            $alpa  = $records->where('status', 'A')->count();
+            $belum = $totalPertemuan - $pertemuanSelesai;
+            $persen = $totalPertemuan > 0
+                ? round(($hadir / $totalPertemuan) * 100)
+                : 0;
+
+            $exportData[] = [
+                'No'             => $no++,
+                'NIS'            => $siswa->nis,
+                'Mata Pelajaran' => $mapel->nama_mapel ?? '-',
+                'Pertemuan'      => "$pertemuanSelesai/$totalPertemuan",
+                'Hadir'          => $hadir,
+                'Izin'           => $izin,
+                'Sakit'          => $sakit,
+                'Alpa'           => $alpa,
+                'Belum Presensi' => $belum,
+                'Hadir (%)'      => $persen . '%',
+            ];
+        }
+
+        return Excel::download(
+            new AbsensiSiswaExport($exportData, $siswa),
+            'Rekap_Absensi_Saya_' . date('Ymd_His') . '.xlsx'
+        );
+    }
+
     public function exportPdf()
     {
         $siswa          = Auth::user()->siswa;

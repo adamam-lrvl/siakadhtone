@@ -273,6 +273,7 @@ public function inputPerKategori($kelasId, $mapelId, $kategori)
      */
     public function exportExcelKelas($kelasId, $mapelId, $semester = 1)
     {
+        $semester = request('semester', $semester);
         $kelas = Kelas::findOrFail($kelasId);
         $mapel = Mapel::findOrFail($mapelId);
 
@@ -344,10 +345,12 @@ public function inputPerKategori($kelasId, $mapelId, $kategori)
      */
     public function exportPdfKelas($kelasId, $mapelId, $semester = 1)
     {
-        $kelas = Kelas::findOrFail($kelasId);
+        $semester = request('semester', $semester);
+        $kelas = Kelas::with('waliKelas')->findOrFail($kelasId);
         $mapel = Mapel::findOrFail($mapelId);
 
         // Ambil data rekap yang sama
+        $guru = Auth::user()->guru;
         $siswa = $kelas->siswas()
             ->with(['nilai' => function ($q) use ($mapelId, $semester) {
                 $q->where('mapel_id', $mapelId)
@@ -386,7 +389,7 @@ public function inputPerKategori($kelasId, $mapelId, $kategori)
             ];
         });
 
-        $pdf = PDF::loadView('guru.nilai.export-rekap-pdf', compact('rekapSiswa', 'kelas', 'mapel', 'semester'))
+        $pdf = PDF::loadView('guru.nilai.export-rekap-pdf', compact('rekapSiswa', 'kelas', 'mapel', 'semester', 'guru'))
                   ->setPaper('A4', 'landscape');
 
         return $pdf->download("Rekap_Nilai_{$mapel->nama_mapel}_{$kelas->nama_kelas}_Semester{$semester}.pdf");

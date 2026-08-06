@@ -45,18 +45,18 @@ class DashboardController extends Controller
             ->get();
 
         
-        // $jadwalHariIni = Jadwal::where('guru_id', $guru->id)
-        //     ->where(DB::raw('UPPER(hari)'), $hariUpper)
-        //     ->with(['kelas', 'mapel'])
-        //     ->orderBy('jam_mulai')
-        //     ->get();
+        $jadwalMingguIni = Jadwal::where('guru_id', $user->guru->id)
+            ->with(['mapel', 'kelas'])
+            ->whereIn('hari', ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'])
+            ->get();
 
         return view('guru.dashboard', compact(
             'guru',
             'totalKelas',
             'totalSiswa',
             'mapelDiajar',
-            'jadwalHariIni'
+            'jadwalHariIni',
+            'jadwalMingguIni'
         ));
     }
 }

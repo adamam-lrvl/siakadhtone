@@ -6,173 +6,235 @@
     <title>Login - SIAKAD HTONE</title>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+        }
+
+        .glass-input {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: #fff;
+            transition: all 0.2s;
+        }
+        .glass-input::placeholder { color: rgba(255,255,255,0.45); }
+        .glass-input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.22);
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 0 3px rgba(255,255,255,0.12);
+        }
+
+        .glass-btn {
+            background: rgba(255, 255, 255, 0.95);
+            color: #1d4ed8;
+            font-weight: 700;
+            border: none;
+            transition: all 0.2s;
+        }
+        .glass-btn:hover {
+            background: #ffffff;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+            transform: translateY(-1px);
+        }
+
+        .glass-feature {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        .error-glass {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.35);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+    </style>
 </head>
 
-<body class="min-h-screen font-['Inter'] antialiased flex">
+<body class="min-h-screen flex overflow-hidden">
 
-    {{-- PANEL KIRI — BIRU (hidden di HP) --}}
-    <div class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-600 to-indigo-700
-                flex-col items-center justify-center p-12 text-white">
-
-        <div class="max-w-sm text-center">
-            {{-- LOGO --}}
-            <div class="w-20 h-20 bg-white/15 rounded-3xl flex items-center justify-center mx-auto mb-6 overflow-hidden">
-                <img src="{{ asset('loho-sekolah.png') }}" alt="Logo"
-                     class="w-full h-full object-contain"
-                     onerror="this.style.display='none'; this.parentElement.innerHTML='<span class=\'text-white font-bold text-2xl\'>S</span>'">
-            </div>
-
-            <h1 class="text-3xl font-bold mb-2">SIAKAD HTONE</h1>
-            <p class="text-blue-200 text-sm mb-10">
-                Sistem Informasi Akademik<br>SMK Hang Tuah 1 Jakarta
-            </p>
-
-            {{-- FITUR --}}
-            <div class="space-y-3 text-left">
-                @foreach([
-                    ['check-square',   'Rekap absensi siswa'],
-                    ['trending-up',    'Monitoring nilai & predikat'],
-                    ['calendar-clock', 'Jadwal pelajaran harian'],
-                    ['megaphone',      'Pengumuman sekolah'],
-                ] as [$icon, $label])
-                <div class="flex items-center gap-3 bg-white/10 rounded-xl px-4 py-3">
-                    <div class="bg-white/20 rounded-lg p-1.5 flex-shrink-0">
-                        <i data-lucide="{{ $icon }}" class="w-4 h-4"></i>
-                    </div>
-                    <span class="text-sm font-medium">{{ $label }}</span>
-                </div>
-                @endforeach
-            </div>
-        </div>
+    {{-- BACKGROUND FOTO SEKOLAH --}}
+    <div class="fixed inset-0 z-0">
+        <img src="{{ asset('foto-sekolah.jpg') }}"
+             alt="SMK Hang Tuah 1 Jakarta"
+             class="w-full h-full object-cover object-center"
+             onerror="this.style.display='none'">
+        {{-- OVERLAY --}}
+        <div class="absolute inset-0 bg-gradient-to-br from-blue-900/80 via-blue-800/70 to-indigo-900/85"></div>
     </div>
 
-    {{-- PANEL KANAN — FORM --}}
-    <div class="flex-1 flex flex-col items-center justify-center
-                bg-gray-50 px-6 py-12 min-h-screen">
+    {{-- CONTENT WRAPPER --}}
+    <div class="relative z-10 flex w-full min-h-screen">
 
-        {{-- LOGO MOBILE --}}
-        <div class="lg:hidden text-center mb-8">
-            <div class="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-3 overflow-hidden">
-                <img src="{{ asset('loho-sekolah.png') }}" alt="Logo"
-                     class="w-full h-full object-contain"
-                     onerror="this.style.display='none'">
+        {{-- PANEL KIRI — info sekolah (hidden di HP) --}}
+        <div class="hidden lg:flex lg:w-1/2 flex-col items-center justify-center p-14 text-white">
+            <div class="max-w-sm w-full">
+
+                {{-- LOGO --}}
+                <div class="glass-card w-20 h-20 rounded-3xl flex items-center justify-center mb-7 overflow-hidden">
+                    <img src="{{ asset('loho-sekolah.png') }}" alt="Logo"
+                         class="w-full h-full object-contain"
+                         onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=\'color:white;font-weight:800;font-size:1.5rem\'>S</span>'">
+                </div>
+
+                <h1 class="text-4xl font-extrabold mb-2 leading-tight tracking-tight">
+                    SIAKAD<br>HT ONE
+                </h1>
+                <p class="text-white/60 text-sm mb-10 leading-relaxed">
+                    Sistem Informasi Akademik<br>SMK Hang Tuah 1 Jakarta
+                </p>
+
+                {{-- FITUR --}}
+                <div class="space-y-2.5">
+                    @foreach([
+                        ['check-square',   'Rekap absensi siswa'],
+                        ['trending-up',    'Monitoring nilai & predikat'],
+                        ['calendar-clock', 'Jadwal pelajaran harian'],
+                        ['megaphone',      'Pengumuman sekolah'],
+                    ] as [$icon, $label])
+                    <div class="glass-feature flex items-center gap-3 rounded-2xl px-4 py-3">
+                        <div class="w-8 h-8 bg-white/15 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="{{ $icon }}" class="w-4 h-4 text-white"></i>
+                        </div>
+                        <span class="text-sm font-medium text-white/90">{{ $label }}</span>
+                    </div>
+                    @endforeach
+                </div>
             </div>
-            <p class="font-bold text-gray-900">SIAKAD HTONE</p>
-            <p class="text-xs text-gray-400">SMK Hang Tuah 1 Jakarta</p>
         </div>
 
-        <div class="w-full max-w-sm">
+        {{-- PANEL KANAN — FORM GLASS --}}
+        <div class="flex-1 flex flex-col items-center justify-center px-6 py-12">
 
-            {{-- JUDUL --}}
-            <div class="mb-8">
-                <h2 class="text-2xl font-bold text-gray-900">Masuk ke akun</h2>
-                <p class="text-sm text-gray-400 mt-1">Gunakan email dan password yang terdaftar</p>
+            {{-- LOGO MOBILE --}}
+            <div class="lg:hidden text-center mb-8">
+                <div class="glass-card w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-3 overflow-hidden">
+                    <img src="{{ asset('loho-sekolah.png') }}" alt="Logo"
+                         class="w-full h-full object-contain"
+                         onerror="this.style.display='none'">
+                </div>
+                <p class="font-bold text-white text-sm">SIAKAD HTONE</p>
+                <p class="text-xs text-white/50">SMK Hang Tuah 1 Jakarta</p>
             </div>
 
-            {{-- ERROR --}}
-            @if($errors->any())
-                <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3
-                            rounded-xl flex items-center gap-3 text-sm mb-6">
-                    <i data-lucide="alert-circle" class="w-4 h-4 flex-shrink-0"></i>
-                    {{ $errors->first() }}
+            {{-- FORM CARD --}}
+            <div class="glass-card rounded-3xl p-8 w-full max-w-sm">
+
+                {{-- JUDUL --}}
+                <div class="mb-7">
+                    <h2 class="text-2xl font-extrabold text-white tracking-tight">Masuk ke akun</h2>
+                    <p class="text-sm text-white/50 mt-1">Gunakan email dan password yang terdaftar</p>
                 </div>
-            @endif
 
-            {{-- FORM --}}
-            <form method="POST" action="{{ route('login') }}" class="space-y-4">
-                @csrf
-
-                {{-- EMAIL --}}
-                <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-1.5">
-                        Email
-                    </label>
-                    <div class="relative">
-                        <i data-lucide="mail" class="absolute left-3.5 top-1/2 -translate-y-1/2
-                                                      text-gray-400 w-4 h-4"></i>
-                        <input type="email" name="email" value="{{ old('email') }}" required
-                               placeholder="contoh@email.com"
-                               class="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200
-                                      rounded-xl text-sm text-gray-800 focus:outline-none
-                                      focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-                                      transition @error('email') border-red-400 bg-red-50 @enderror">
+                {{-- ERROR --}}
+                @if($errors->any())
+                    <div class="error-glass text-red-200 px-4 py-3 rounded-2xl
+                                flex items-center gap-3 text-sm mb-5">
+                        <i data-lucide="alert-circle" class="w-4 h-4 flex-shrink-0 text-red-300"></i>
+                        {{ $errors->first() }}
                     </div>
-                </div>
+                @endif
 
-                {{-- PASSWORD --}}
-                <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-1.5">
-                        Password
-                    </label>
-                    <div class="relative">
-                        <i data-lucide="lock" class="absolute left-3.5 top-1/2 -translate-y-1/2
-                                                      text-gray-400 w-4 h-4"></i>
-                        <input type="password" name="password" id="passwordInput" required
-                               placeholder="••••••••"
-                               class="w-full pl-10 pr-10 py-2.5 bg-white border border-gray-200
-                                      rounded-xl text-sm text-gray-800 focus:outline-none
-                                      focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
-                        <button type="button" id="togglePassword"
-                                class="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400
-                                       hover:text-gray-600 transition">
-                            <i data-lucide="eye" class="w-4 h-4" id="eyeIcon"></i>
-                        </button>
+                {{-- FORM --}}
+                <form method="POST" action="{{ route('login') }}" class="space-y-4">
+                    @csrf
+
+                    {{-- EMAIL --}}
+                    <div>
+                        <label class="block text-xs font-semibold text-white/70 mb-1.5 uppercase tracking-wide">
+                            Email
+                        </label>
+                        <div class="relative">
+                            <i data-lucide="mail" class="absolute left-3.5 top-1/2 -translate-y-1/2
+                                                          text-white/40 w-4 h-4 pointer-events-none"></i>
+                            <input type="email" name="email" value="{{ old('email') }}" required
+                                   placeholder="contoh@email.com"
+                                   class="glass-input w-full pl-10 pr-4 py-2.5 rounded-xl text-sm">
+                        </div>
                     </div>
-                </div>
 
-                {{-- REMEMBER + FORGOT --}}
-                <div class="flex items-center justify-between">
-                    <label class="flex items-center gap-2 cursor-pointer text-sm text-gray-600">
-                        <input type="checkbox" name="remember"
-                               class="rounded border-gray-300 text-blue-600
-                                      focus:ring-blue-500">
-                        Ingat saya
-                    </label>
-                    @if(Route::has('password.request'))
-                        <a href="{{ route('password.request') }}"
-                           class="text-xs font-semibold text-blue-600 hover:text-blue-800 transition">
-                            Lupa password?
-                        </a>
-                    @endif
-                </div>
+                    {{-- PASSWORD --}}
+                    <div>
+                        <label class="block text-xs font-semibold text-white/70 mb-1.5 uppercase tracking-wide">
+                            Password
+                        </label>
+                        <div class="relative">
+                            <i data-lucide="lock" class="absolute left-3.5 top-1/2 -translate-y-1/2
+                                                          text-white/40 w-4 h-4 pointer-events-none"></i>
+                            <input type="password" name="password" id="passwordInput" required
+                                   placeholder="••••••••"
+                                   class="glass-input w-full pl-10 pr-10 py-2.5 rounded-xl text-sm">
+                            <button type="button" id="togglePassword"
+                                    class="absolute right-3.5 top-1/2 -translate-y-1/2
+                                           text-white/40 hover:text-white/80 transition">
+                                <i data-lucide="eye" class="w-4 h-4" id="eyeIcon"></i>
+                            </button>
+                        </div>
+                    </div>
 
-                {{-- SUBMIT --}}
-                <button type="submit"
-                        class="w-full py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600
-                               hover:from-blue-700 hover:to-indigo-700 text-white font-semibold
-                               rounded-xl text-sm shadow-sm hover:shadow-md transition mt-2">
-                    Masuk
-                </button>
+                    {{-- REMEMBER + FORGOT --}}
+                    <div class="flex items-center justify-between pt-1">
+                        <label class="flex items-center gap-2 cursor-pointer text-sm text-white/60">
+                            <input type="checkbox" name="remember"
+                                   class="rounded border-white/30 bg-white/10 text-blue-500
+                                          focus:ring-white/30">
+                            Ingat saya
+                        </label>
+                        @if(Route::has('password.request'))
+                            <a href="{{ route('password.request') }}"
+                               class="text-xs font-semibold text-white/70 hover:text-white transition">
+                                Lupa password?
+                            </a>
+                        @endif
+                    </div>
 
-            </form>
+                    {{-- SUBMIT --}}
+                    <button type="submit"
+                            class="glass-btn w-full py-3 rounded-2xl text-sm mt-1">
+                        Masuk
+                    </button>
 
-            {{-- FOOTER --}}
-            <p class="text-center text-xs text-gray-400 mt-8">
-                © {{ date('Y') }} SIAKAD HTONE — SMK Hang Tuah 1 Jakarta
-            </p>
+                </form>
+
+                {{-- FOOTER --}}
+                <p class="text-center text-xs text-white/30 mt-6">
+                    © {{ date('Y') }} SMK Hang Tuah 1 Jakarta
+                </p>
+            </div>
         </div>
+
     </div>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        lucide.createIcons();
+
+        const toggleBtn     = document.getElementById("togglePassword");
+        const passwordInput = document.getElementById("passwordInput");
+        const eyeIcon       = document.getElementById("eyeIcon");
+        let visible = false;
+
+        toggleBtn?.addEventListener("click", () => {
+            visible = !visible;
+            passwordInput.type = visible ? "text" : "password";
+            eyeIcon.setAttribute("data-lucide", visible ? "eye-off" : "eye");
+            lucide.createIcons();
+        });
+    });
+    </script>
 
 </body>
-
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-    lucide.createIcons();
-
-    const toggleBtn   = document.getElementById("togglePassword");
-    const passwordInput = document.getElementById("passwordInput");
-    const eyeIcon     = document.getElementById("eyeIcon");
-
-    let visible = false;
-
-    toggleBtn?.addEventListener("click", () => {
-        visible = !visible;
-        passwordInput.type = visible ? "text" : "password";
-        eyeIcon.setAttribute("data-lucide", visible ? "eye-off" : "eye");
-        lucide.createIcons();
-    });
-});
-</script>
 </html>

@@ -18,35 +18,71 @@ class DashboardController extends Controller
 {
     $siswa = Auth::user()->siswa;
 
-    $hariIni = \Carbon\Carbon::today()->translatedFormat('l');
-    $jadwalsHariIni = Jadwal::whereHas('kelas.siswas', function ($q) use ($siswa) {
-        $q->where('siswas.id', $siswa->id); // PAKE siswas.id, BUKAN siswa_id
-    })
-    ->where('hari', $hariIni)
-    ->with(['mapel', 'guru'])
-    ->orderBy('jam_mulai')
-    ->get();
+        $hariIni = \Carbon\Carbon::today()->translatedFormat('l');
 
-    $absensi = Absensi::where('siswa_id', $siswa->id)
-        ->whereMonth('tanggal', now()->month)
-        ->selectRaw('status, count(*) as total')
-        ->groupBy('status')
-        ->pluck('total', 'status');
-
-    $nilaiTerakhir = Nilai::where('siswa_id', $siswa->id)
-        ->with('mapel')
-        ->orderBy('updated_at', 'desc')
+        $jadwalsHariIni = Jadwal::whereHas('kelas.siswas', function ($q) use ($siswa) {
+            $q->where('siswas.id', $siswa->id);
+        })
+        ->where('hari', $hariIni)
+        ->with(['mapel', 'guru'])
+        ->orderBy('jam_mulai')
         ->get();
 
-    $pengumuman = Pengumuman::published()->latest()->get();
+        // ABSENSI OVERALL (untuk stat card)
+        $absensi = Absensi::where('siswa_id', $siswa->id)
+            ->whereMonth('tanggal', now()->month)
+            ->selectRaw('status, count(*) as total')
+            ->groupBy('status')
+            ->pluck('total', 'status');
 
+        //  ABSENSI PER MAPEL (baru)
+        $absensiPerMapel = Absensi::where('siswa_id', $siswa->id)
+            ->whereMonth('tanggal', now()->month)
+            ->with('jadwal.mapel')
+            ->get()
+            ->groupBy(fn($absen) => $absen->jadwal->mapel->nama_mapel ?? 'Tidak Diketahui')
+            ->map(function ($group, $namaMapel) {
+                $total = $group->count();
+                $hadir = $group->where('status', 'H')->count();
+                $persen = $total > 0 ? round(($hadir / $total) * 100, 1) : 0;
 
-    return view('siswa.dashboard', compact(
-    'jadwalsHariIni',   // UBAH JADI INI (ADA "S")
-    'absensi',
-    'nilaiTerakhir',
-    'pengumuman'
-));
+                return [
+                    'mapel' => $namaMapel,
+                    'total' => $total,
+                    'hadir' => $hadir,
+                    'persen_hadir' => $persen,
+                ];
+            })
+            ->values();
+
+        $nilaiTerakhir = Nilai::where('siswa_id', $siswa->id)
+            ->with('mapel')
+            ->orderBy('updated_at', 'desc')
+            ->get();
+
+        $pengumuman = Pengumuman::published()->latest()->get();
+
+        $jadwalSemester = Jadwal::whereHas('kelas.siswas', function ($q) use ($siswa) {
+        $q->where('siswas.id', $siswa->id);
+        })
+        ->with(['mapel', 'guru'])
+        ->orderByRaw("FIELD(hari, 'Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu')")
+        ->orderBy('jam_mulai')
+        ->get()
+        ->groupBy('hari');
+
+        // Hari urut
+        $hariUrut = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+
+        return view('siswa.dashboard', compact(
+            'jadwalsHariIni',
+            'absensi',
+            'absensiPerMapel',    
+            'nilaiTerakhir',
+            'pengumuman',
+            'jadwalSemester',   
+            'hariUrut'
+        ));
 }
 
     public function jadwal()
@@ -102,7 +138,7 @@ public function rekap()
             // RATA-RATA SEMUA TUGAS (tugas_1 sampai tugas_6)
             $tugas = $group->filter(fn($n) => str_starts_with($n->kategori, 'tugas_'))->avg('nilai');
 
-            // UTS & UAS (kalau ada)
+            // UTS & UAS 
             $uts = $group->where('kategori', 'uts')->avg('nilai');
             $uas = $group->where('kategori', 'uas')->avg('nilai');
 
@@ -223,8 +259,8 @@ public function rekap()
             ];
         })->values();
 
-        $pdf = PDF::loadView('siswa.nilai.export-pdf', compact('rekapNilai', 'siswa'))
-                  ->setPaper('A4', 'landscape');
+            $pdf = PDF::loadView('siswa.nilai.export-pdf', compact('rekapNilai', 'siswa'))
+            ->setPaper('A4', 'portrait');
 
         return $pdf->download('Rekap_Nilai_Saya_' . date('Ymd_His') . '.pdf');
     }

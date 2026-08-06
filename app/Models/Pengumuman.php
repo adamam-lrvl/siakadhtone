@@ -16,7 +16,8 @@ class Pengumuman extends Model
         'isi',
         'tanggal',
         'aktif',
-        'status',        
+        'status',    
+        'gambar',    
         'approved_by',   
         'approved_at',   
     ];

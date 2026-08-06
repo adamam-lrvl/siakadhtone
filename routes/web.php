@@ -119,7 +119,7 @@ Route::prefix('siswa')->name('siswa.')->middleware(['auth', 'role:siswa'])->grou
     Route::get('/nilai', [SiswaDashboardController::class, 'nilai'])->name('nilai');
     Route::get('/nilai/rekap', [SiswaDashboardController::class, 'rekap'])
         ->name('nilai.rekap');
-    Route::get('/absensi', [SiswaDashboardController::class, 'absensi'])->name('absensi.index');
+    Route::get('/absensi', [App\Http\Controllers\Siswa\AbsensiController::class, 'index'])->name('absensi.index');
     Route::get('/jadwal', [SiswaDashboardController::class, 'jadwal'])->name('jadwal.index');
     Route::get('/pengumuman', [SiswaDashboardController::class, 'pengumuman'])->name('pengumuman.index');
     Route::get('/absensi/export/excel', [App\Http\Controllers\Siswa\AbsensiController::class, 'exportExcel'])
