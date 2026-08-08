@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Notifications\ResetPasswordNotification;
 
 class User extends Authenticatable
 {
@@ -23,7 +24,10 @@ class User extends Authenticatable
     public function isGuru()  { return $this->role === 'guru'; }
     public function isSiswa() { return $this->role === 'siswa'; }
     public function isKepalaSekolah(){ return $this->role === 'kepala_sekolah'; }
-    
+    public function sendPasswordResetNotification($token)
+{
+    $this->notify(new ResetPasswordNotification($token));
+}
     /**
      * The attributes that should be hidden for serialization.
      *

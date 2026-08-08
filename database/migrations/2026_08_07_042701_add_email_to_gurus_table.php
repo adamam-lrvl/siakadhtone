@@ -11,10 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('soals', function (Blueprint $table) {
-            $table->enum('tipe', ['pg', 'essay'])->default('pg');
-            $table->json('pilihan')->nullable();
-            $table->string('jawaban')->nullable();
+        Schema::table('gurus', function (Blueprint $table) {
+            $table->string('email')->nullable()->after('nama');
         });
     }
 
@@ -23,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('soals', function (Blueprint $table) {
-            $table->dropColumn(['tipe', 'pilihan', 'jawaban']);
+        Schema::table('gurus', function (Blueprint $table) {
+            $table->dropColumn('email');
         });
     }
 };

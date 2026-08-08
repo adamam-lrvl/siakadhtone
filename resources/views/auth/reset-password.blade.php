@@ -45,10 +45,14 @@
                 <p class="text-gray-600 mt-1">Masukkan password baru Anda</p>
             </div>
 
-            <form method="POST" action="{{ route('password.update') }}">
+            <form method="POST" action="{{ route('password.store') }}">
                 @csrf
                 <input type="hidden" name="token" value="{{ $token }}">
-
+		    @error('email')
+        <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+            {{ $message }}
+        </div>
+    @enderror
                 <!-- EMAIL -->
                 <div class="mb-6">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>

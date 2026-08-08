@@ -11,11 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('soals', function (Blueprint $table) {
-            $table->foreignId('paket_soal_id')
-              ->nullable()
-              ->constrained('paket_soals')
-              ->onDelete('cascade');
+        Schema::table('nilais', function (Blueprint $table) {
+            $table->string('kategori')->nullable()->after('nilai');
         });
     }
 
@@ -24,9 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('soals', function (Blueprint $table) {
-            $table->dropForeign(['paket_soal_id']);
-            $table->dropColumn('paket_soal_id');
+        Schema::table('nilais', function (Blueprint $table) {
+            $table->dropColumn('kategori');
         });
     }
 };

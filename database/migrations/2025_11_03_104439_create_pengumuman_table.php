@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('judul');
             $table->longText('isi');
-            $table->date('tanggal')->after('isi');
+            $table->date('tanggal');
             $table->boolean('aktif')->default(false);
             $table->timestamps();
         });
